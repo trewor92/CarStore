@@ -20,20 +20,17 @@ namespace CarStoreRest
         {
             _configuration = new ConfigurationBuilder()
                            .SetBasePath(env.ContentRootPath)
-                           .AddJsonFile($"appsettings.{env.EnvironmentName}.json").Build();
+                           .AddJsonFile($"appsettings.{env.EnvironmentName}.json")
+                           .Build();
         }
-
 
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
                options.UseSqlServer(_configuration["Data:CarStoreCars:ConnectionString"]));
-
             services.AddTransient<ICarRepository, EFCarRepository>();
-
             services.AddMvc();
         }
-
       
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
@@ -41,18 +38,10 @@ namespace CarStoreRest
             {
                 app.UseDeveloperExceptionPage();
             }
-
             app.UseStatusCodePages();
             app.UseStaticFiles();
             app.UseMvcWithDefaultRoute();
             CarsSeedData.EnsurePopulated(app);
-
-            /*
-            app.Run(async (context) =>
-            {
-                await context.Response.WriteAsync("Hello World!");
-            });
-            */
         }
     }
 }

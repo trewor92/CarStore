@@ -12,8 +12,8 @@ namespace CarStoreRest.Models
         {
             _context = ctx;
         }
-        public IEnumerable<Car> Cars => _context.Cars;
 
+        public IEnumerable<Car> Cars => _context.Cars;
         public Car FindCar(int carID)
         {
             return _context.Cars
@@ -22,23 +22,20 @@ namespace CarStoreRest.Models
 
         public Car AddCar(Car car)
         {
-            var newCar = new Car
+            Car newCar = new Car
             {
                 Brand = car.Brand,
                 Model = car.Model,
                 Description = car.Description,
                 Price = car.Price
             };
-
             _context.Cars.Add(newCar);
             _context.SaveChanges();
             return newCar;
-            
         }
-
         public void EditCar(Car car)
         {
-            var currentCar = FindCar(car.CarID);
+            Car currentCar = FindCar(car.CarID);
             if (currentCar!=null)
             {
                 currentCar.Brand = car.Brand;
@@ -46,28 +43,18 @@ namespace CarStoreRest.Models
                 currentCar.Description = car.Description;
                 currentCar.Price = car.Price;
             }
-
             _context.SaveChanges();
-
         }
-
-
         public Car DeleteCar(int carID)
         {
-            Car dbEntry = _context.Cars
+            Car currentCar = _context.Cars
                     .FirstOrDefault(c => c.CarID == carID);
-            if (dbEntry != null)
+            if (currentCar != null)
             {
-                _context.Cars.Remove(dbEntry);
+                _context.Cars.Remove(currentCar);
                 _context.SaveChanges();
             }
-            return dbEntry;
+            return currentCar;
         }
-
-
-
-
-
-
     }
 }

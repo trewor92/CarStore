@@ -20,9 +20,14 @@ namespace CarStoreRest.Controllers
 
         // GET: api/Car
         [HttpGet]
-        public IEnumerable<Car> Get()
+        public IActionResult Get()
         {
-            return _repository.Cars;
+            var toReturn = _repository.Cars;
+
+            if (toReturn == null)
+                return NotFound();
+            
+            return Ok(toReturn);
         }
 
         // GET: api/Car/5
@@ -31,10 +36,10 @@ namespace CarStoreRest.Controllers
         {
             var car = _repository.FindCar(carID);
 
-            if (car != null)
-                return new ObjectResult(car);
-            else
+            if (car == null)
                 return NotFound();
+
+            return Ok(car);
         }
 
         // POST: api/Car
@@ -43,8 +48,6 @@ namespace CarStoreRest.Controllers
         {
             if (car == null)
                 return BadRequest();
-            if (car.CarID != 0)
-                return BadRequest("CarID(int) must have default value");
 
             var newCar = _repository.AddCar(car);
             return CreatedAtRoute(nameof(Get), new { carID = newCar.CarID }, newCar);
@@ -55,18 +58,14 @@ namespace CarStoreRest.Controllers
         public IActionResult Edit([FromBody] Car car)
         {
             if (car == null)
-            {
                 return BadRequest();
-            }
 
             var currentCar = _repository.FindCar(car.CarID);
             if (currentCar == null)
-            {
                 return NotFound();
-            }
 
             _repository.EditCar(car);
-            return new NoContentResult();
+            return CreatedAtRoute(nameof(Get), new { carID = currentCar.CarID }, currentCar);
         }
 
         // DELETE: api/Car/5
@@ -75,10 +74,10 @@ namespace CarStoreRest.Controllers
         {
             var currentCar = _repository.FindCar(carID);
             if (currentCar == null)
-            {
                 return NotFound();
-            }
+
             _repository.DeleteCar(carID);
+
             return new NoContentResult();
         }
     }

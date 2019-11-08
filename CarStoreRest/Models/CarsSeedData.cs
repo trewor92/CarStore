@@ -12,25 +12,21 @@ namespace CarStoreRest.Models
         public static void EnsurePopulated(IApplicationBuilder app)
         {
             var _serviceScope = app.ApplicationServices.CreateScope();
-
             ApplicationDbContext _context = _serviceScope.ServiceProvider
                 .GetService<ApplicationDbContext>();
-
 
             if (!_context.Cars.Any())
             {
                 _context.Cars.AddRange(
                 new Car
                 {
-                    
                     Brand = "BMW",
                     Model = "X5",
                     Description = "2005 year",
                     Price = 60000
                 },
                 new Car
-                {
-                    
+                {   
                     Brand = "Toyota",
                     Model = "Prius",
                     Description = "2008 year",
@@ -84,9 +80,7 @@ namespace CarStoreRest.Models
                     Model = "750",
                     Description = "2019 year",
                     Price = 35000
-                }
-                ) ;
-
+                });
                 _context.SaveChanges();
             }
         }
