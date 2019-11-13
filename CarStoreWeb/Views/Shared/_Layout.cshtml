@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>CarStore</title>
+    <link rel="stylesheet" asp-href-include="lib/bootstrap/dist/css/*" />
+    <link rel="stylesheet" asp-href-include="css/myStyles.css" />
+    <script asp-src-include="lib/jquery/jquery.js"></script>
+    <script asp-src-include="lib/bootstrap/dist/js/*.js"></script>
+</head>
+<body>
+    <div class="container-fluid px-md-5 font-italic">
+        <nav class=" navbar navbar-expand-lg navbar-light bg-white py-3 shadow-sm rounded mb-4 ">
+            <a href="#" class="navbar-brand mr-auto">
+                <img src="~/img/logo.jpg" alt="Logo" class="img-thumbnail" style="width:50px;">
+                <span> CAR store</span>
+            </a>
+            <div class="collapse navbar-collapse" id="navcol-1">
+                <ul class="navbar-nav ml-auto">
+                    <li class="dropdown">
+                        <a data-toggle="dropdown" aria-expanded="false" href="#" class="nav-link ">
+                            <span class="navbar-toggler-icon"></span>
+                        </a>
+                        <div role="menu" class="dropdown-menu dropdown-menu-right">
+                            <a role="presentation" href="#" class="dropdown-item">About</a>
+                            <a role="presentation" href="#" class="dropdown-item">Reserve</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+            
+        <div class="row">
+            <div class="col-lg-4 mb-4 mb-lg-0 rounded">
+                @await Component.InvokeAsync("NavigationMenu")
+            </div>
+            <div class="col-lg-8 mb-5">
+                <div>
+                        @RenderBody()
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

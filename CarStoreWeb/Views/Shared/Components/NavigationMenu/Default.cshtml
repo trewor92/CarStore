@@ -1,0 +1,23 @@
+﻿@model NavigationMenuViewComponentViewModel
+    <nav class="nav flex-column bg-white shadow-sm font-italic rounded p-3 ">
+        <a class="nav-link px-4    list-group-flush"
+           asp-action="List"
+           asp-controller="Declaration"
+           asp-route-category=""
+           asp-route-pageNum="">
+            <span>Home</span>
+        </a>
+
+        @foreach (var brand in Model.Categories)
+        {
+                
+            <a class="nav-link px-4  @(Model.CurrentCategory!=brand.Key?"list-group-flush" :"list-group-item-danger")"
+                asp-action="List"
+                asp-controller="Declaration"
+                asp-route-category=@brand.Key
+                asp-route-pageNum="1">
+                    @brand.Key
+                    <span class="badge badge-primary px-2 rounded-pill ml-2">@brand.Value</span>
+            </a>    
+        }
+    </nav>

@@ -1,0 +1,27 @@
+﻿@model Car
+<div class=" bg-white  align-items-center shadow-sm rounded mb-2">
+    <h3>
+        <strong>@Model.Brand</strong>
+        <strong>@Model.Model</strong>
+        <span class="pull-right label label-primary">
+            @Model.Price.ToString("c")
+        </span>
+    </h3>
+    <form id=@Model.CarID asp-action="AddToCart"
+          asp-controller="Cart" method="post">
+        <input type="hidden" asp-for="CarID" /> <!--дублируется свойство модели ProductId-->
+
+        <input type="hidden" name="returnUrl"
+               value="@ViewContext.HttpContext.Request.PathAndQuery()" />
+        <div class="row">
+            <div class="col-9">
+                @Model.Description
+            </div>
+            <div class="col-3">
+                <button type="submit" class="btn btn-primary btn-sm pull-right">
+                    buy now
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
