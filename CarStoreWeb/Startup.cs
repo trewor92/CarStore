@@ -6,6 +6,8 @@ using CarStoreWeb.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -31,6 +33,9 @@ namespace CarStore
         {
             services.AddTransient<ICarRepository>(s=>new RemoteCarRepository(_configuration["Data:CarStoreCars:WebApiUrl"]));
             services.AddMvc();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddMemoryCache();
+            services.AddSession();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -43,18 +48,21 @@ namespace CarStore
             app.UseStatusCodePages();
             app.UseStaticFiles();
             //app.UseMvcWithDefaultRoute();
+            app.UseSession();
 
             app.UseMvc(routes =>
             {
-                routes.MapRoute("default", "{controller=Declaration}/{action=List}/{category}/{pageNum}"); // привязывается просто по очереди???
+                routes.MapRoute(name: "1",
+                            template: "{controller}/{action}/{category}/{pageNum}/{sortOrder?}",
+                            defaults: new { controller= "Declaration", action= "List" },
+                            constraints:new { pageNum=new IntRouteConstraint()});
 
-                routes.MapRoute("withoutCategory", "{controller=Declaration}/{action=List}/{pageNum?}");
-                
-                
-                
-
+                routes.MapRoute(name: "2",
+                            template: "{controller}/{action}/{pageNum?}/{sortOrder?}",
+                            defaults: new { controller = "Declaration", action = "List" }
+                            );
+            //после сортировки в разделе home, вид сортировки переходит на другие разделы, только при такой маршрутизации
             });
-
         }
     }
 }

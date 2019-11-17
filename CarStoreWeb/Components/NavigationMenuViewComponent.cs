@@ -24,7 +24,7 @@ namespace CarStoreWeb.Components
                                              .GroupBy(x => x)
                                              .ToDictionary(x => x.Key, x => x.Count()),
                 CurrentCategory = RouteData?.Values["category"]?.ToString()
-            }); ; ; 
+            }); 
         }
     }
 }

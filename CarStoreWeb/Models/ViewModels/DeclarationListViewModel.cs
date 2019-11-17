@@ -10,5 +10,6 @@ namespace CarStoreWeb.Models.ViewModels
         public IEnumerable<Car> Cars { get; set; }
         public string CurrentCategory { get; set; }
         public PagingInfo PagingInfo { get; set; }
+        public SortViewModel SortViewModel { get; set; }
     }
 }

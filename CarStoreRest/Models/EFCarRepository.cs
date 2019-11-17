@@ -26,7 +26,7 @@ namespace CarStoreRest.Models
             {
                 Brand = car.Brand,
                 Model = car.Model,
-                Description = car.Description,
+                CarDescription = car.CarDescription,
                 Price = car.Price
             };
             _context.Cars.Add(newCar);
@@ -40,7 +40,7 @@ namespace CarStoreRest.Models
             {
                 currentCar.Brand = car.Brand;
                 currentCar.Model = car.Model;
-                currentCar.Description = car.Description;
+                currentCar.CarDescription = car.CarDescription;
                 currentCar.Price = car.Price;
             }
             _context.SaveChanges();

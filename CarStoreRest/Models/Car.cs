@@ -11,7 +11,7 @@ namespace CarStoreRest.Models
         public int CarID { get; set; }   
         public string Brand { get; set; }
         public string Model { get; set; }
-        public string Description { get; set; }
+        public CarDescription CarDescription { get; set; }
         public decimal Price { get; set; }
     }
 }

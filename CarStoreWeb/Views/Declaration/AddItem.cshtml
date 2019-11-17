@@ -1,0 +1,55 @@
+﻿@model Car
+<div class="bg-white rounded pl-3 pr-3 pt-2 pb-1 mb-2">
+    <h2>Add declaration right now!</h2>
+    <p>Please enter details:</p>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <form asp-action="AddItem" method="post">
+        <h3>Car:</h3>
+        <div class="form-group">
+            <label>Brand:</label>
+            <div><span asp-validation-for="Brand" class="text-danger"> </span></div>
+            <input asp-for="Brand" class="form-control  " />
+        </div>
+        <div class="form-group">
+            <label>Model:</label>
+            <div><span asp-validation-for="Model" class="text-danger"> </span></div>
+            <input asp-for="Model" class="form-control  " />
+        </div>
+        <div class="form-group">
+            <label>Price:</label>
+            <div><span asp-validation-for="Price" class="text-danger"> </span></div>
+            <input asp-for="Price" class="form-control" />
+        </div>
+        <h3>Description:</h3>
+        <div class="form-group">
+            <label>Color:</label>
+            <div><span asp-validation-for="CarDescription.Color" class="text-danger"> </span></div>
+            <input asp-for="CarDescription.Color" class="form-control " />
+        </div>
+        <div class="form-group">
+            <label>Engine Сapacity:</label>
+            <div><span asp-validation-for="CarDescription.EngineСapacity" class="text-danger"> </span></div>
+            <input asp-for="CarDescription.EngineСapacity" class="form-control " />
+        </div>
+        <div class="form-group">
+            <label>Fuel Type:</label>
+            <div><span asp-validation-for="CarDescription.FuelType" class="text-danger"> </span></div>
+            <select class="form-control" asp-for="CarDescription.FuelType">
+                <option value="">Choose fuel type</option>
+                <option value="gasoline">gasoline</option>
+                <option value="diesel">diesel</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Year Of Manufacture:</label>
+            <div><span asp-validation-for="CarDescription.YearOfManufacture" class="text-danger"> </span></div>
+            <input asp-for="CarDescription.YearOfManufacture" class="form-control" />
+        </div>
+        <div class="text-center">
+            <input class="btn btn-primary" type="submit" value="Add Declaration" />
+        </div>
+    </form>
+</div>
+
+

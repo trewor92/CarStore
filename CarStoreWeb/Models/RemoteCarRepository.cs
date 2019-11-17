@@ -35,7 +35,6 @@ namespace CarStoreWeb.Models
             return response;
         }
 
-
         public IEnumerable<Car> Cars
         {
             get
@@ -55,7 +54,7 @@ namespace CarStoreWeb.Models
             IRestResponse restResponse = SendRequest(Method.POST, null, new Car{
                 Brand = car.Brand,
                 Model = car.Model,
-                Description = car.Description,
+                CarDescription = car.CarDescription,
                 Price = car.Price
             });
             if (!restResponse.IsSuccessful)
@@ -86,7 +85,6 @@ namespace CarStoreWeb.Models
                     $"{restResponse.StatusDescription}");
             }
         }
-
         public Car FindCar(int carID)
         {
             IRestResponse restResponse = SendRequest(Method.GET, carID);

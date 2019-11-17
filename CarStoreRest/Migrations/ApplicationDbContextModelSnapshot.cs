@@ -26,8 +26,6 @@ namespace CarStoreRest.Migrations
 
                     b.Property<string>("Brand");
 
-                    b.Property<string>("Description");
-
                     b.Property<string>("Model");
 
                     b.Property<decimal>("Price");
@@ -35,6 +33,33 @@ namespace CarStoreRest.Migrations
                     b.HasKey("CarID");
 
                     b.ToTable("Cars");
+                });
+
+            modelBuilder.Entity("CarStoreRest.Models.Car", b =>
+                {
+                    b.OwnsOne("CarStoreRest.Models.CarDescription", "CarDescription", b1 =>
+                        {
+                            b1.Property<int>("CarID")
+                                .ValueGeneratedOnAdd()
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                            b1.Property<string>("Color");
+
+                            b1.Property<double>("EngineСapacity");
+
+                            b1.Property<string>("FuelType");
+
+                            b1.Property<int>("YearOfManufacture");
+
+                            b1.HasKey("CarID");
+
+                            b1.ToTable("Cars");
+
+                            b1.HasOne("CarStoreRest.Models.Car")
+                                .WithOne("CarDescription")
+                                .HasForeignKey("CarStoreRest.Models.CarDescription", "CarID")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
                 });
 #pragma warning restore 612, 618
         }
