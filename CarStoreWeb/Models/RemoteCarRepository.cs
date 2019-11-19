@@ -55,7 +55,8 @@ namespace CarStoreWeb.Models
                 Brand = car.Brand,
                 Model = car.Model,
                 CarDescription = car.CarDescription,
-                Price = car.Price
+                Price = car.Price,
+                Author=car.Author
             });
             if (!restResponse.IsSuccessful)
             {

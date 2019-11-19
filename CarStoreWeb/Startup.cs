@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CarStoreWeb.Infrastructure;
 using CarStoreWeb.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Constraints;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -36,7 +40,23 @@ namespace CarStore
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddMemoryCache();
             services.AddSession();
+            services.AddDbContext<AppIdentityDbContext>(options =>
+                options.UseSqlServer(_configuration["Data:CarStoreCars:AppIdentityDbContext:ConnectionString"]));
+            services.AddIdentity<IdentityUser, IdentityRole>()
+               .AddEntityFrameworkStores<AppIdentityDbContext>();
+            services.AddTransient<IAuthorizationHandler,DocumentAuthorizationHandler>();
+            services.AddAuthorization(opts => {
+                opts.AddPolicy("Authors", policy =>
+                {
+                    policy.AddRequirements(new DocumentAuthorizationRequirement
+                    {
+                        AllowAuthors = true
+                    });
+                });
+            });
+
         }
+
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -49,6 +69,7 @@ namespace CarStore
             app.UseStaticFiles();
             //app.UseMvcWithDefaultRoute();
             app.UseSession();
+            app.UseIdentity(); //obsolete
 
             app.UseMvc(routes =>
             {
@@ -63,6 +84,8 @@ namespace CarStore
                             );
             //после сортировки в разделе home, вид сортировки переходит на другие разделы, только при такой маршрутизации
             });
+            IdentitySeedData.EnsurePopulated(app);
+
         }
     }
 }

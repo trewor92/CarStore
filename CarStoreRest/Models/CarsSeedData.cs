@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace CarStoreRest.Models
+namespace CarStoreWeb.Models
 {
     public class CarsSeedData
     {
@@ -20,6 +20,7 @@ namespace CarStoreRest.Models
                 _context.Cars.AddRange(
                 new Car
                 {
+                    Author ="user1",
                     Brand = "BMW",
                     Model = "X5",
                     CarDescription = new CarDescription
@@ -33,6 +34,7 @@ namespace CarStoreRest.Models
                 },
                 new Car
                 {
+                    Author = "user2",
                     Brand = "Toyota",
                     Model = "Prius",
                     CarDescription = new CarDescription
@@ -46,6 +48,7 @@ namespace CarStoreRest.Models
                 },
                 new Car
                 {
+                    Author = "user3",
                     Brand = "Audi",
                     Model = "A4",
                     CarDescription = new CarDescription
@@ -59,6 +62,7 @@ namespace CarStoreRest.Models
                 },
                 new Car
                 {
+                    Author = "user1",
                     Brand = "Toyota",
                     Model = "Avensis",
                     CarDescription = new CarDescription
@@ -72,6 +76,7 @@ namespace CarStoreRest.Models
                 },
                 new Car
                 {
+                    Author = "user2",
                     Brand = "BMW",
                     Model = "X3",
                     CarDescription = new CarDescription
@@ -85,6 +90,7 @@ namespace CarStoreRest.Models
                 },
                 new Car
                 {
+                    Author = "user3",
                     Brand = "Audi",
                     Model = "A6",
                     CarDescription = new CarDescription
@@ -98,6 +104,7 @@ namespace CarStoreRest.Models
                 },
                 new Car
                 {
+                    Author = "user1",
                     Brand = "BMW",
                     Model = "525",
                     CarDescription = new CarDescription
@@ -111,6 +118,7 @@ namespace CarStoreRest.Models
                 },
                 new Car
                 {
+                    Author = "user2",
                     Brand = "BMW",
                     Model = "320",
                     CarDescription = new CarDescription
@@ -124,6 +132,7 @@ namespace CarStoreRest.Models
                 },
                 new Car
                 {
+                    Author = "user3",
                     Brand = "BMW",
                     Model = "750",
                     CarDescription = new CarDescription

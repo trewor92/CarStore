@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace CarStoreRest.Migrations
+namespace CarStoreWeb.Migrations
 {
     public partial class WithCarDescription : Migration
     {

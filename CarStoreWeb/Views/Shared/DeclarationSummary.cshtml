@@ -5,23 +5,16 @@
         <strong>@Model.Model</strong>
         <span class="pull-right label label-primary">
             @Model.Price?.ToString("c", new CultureInfo("en-US"))
-        </span>
-        
-</h3>
-              
+        </span>   
+</h3>      
      <ul>
         <li>Year Of Manufacture: @Model.CarDescription.YearOfManufacture</li>
         <li>Color: @Model.CarDescription.Color</li>
         <li>Fuel Type: @Model.CarDescription.FuelType</li>
         <li>
             Engine Capacity: @Model.CarDescription.EngineСapacity
-            <form asp-action="RemoveItem" method="post" class="pull-right" >
-                <input type="hidden" name="CarID"
-                      value="@Model.CarID"/>
-                <input type="hidden" name="returnUrl"
-                      value="@ViewContext.HttpContext.Request.PathAndQuery()"/>
-                <button type="submit" ><i class="fa fa-trash" style="font-size:20px;color:black;"></i></button>
-            </form>
+       
+            @await Component.InvokeAsync("DeleteEditButton",new { author = Model.Author })
         </li>
      </ul>
 </div>

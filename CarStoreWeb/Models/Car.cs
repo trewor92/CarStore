@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -12,6 +13,8 @@ namespace CarStoreWeb.Models
     {
 
         public int CarID { get; set; }
+       // [BindNever]
+        public string Author { get; set; }
         [Required(ErrorMessage = "Please enter а brand")]
         public string Brand { get; set; }
         [Required(ErrorMessage = "Please enter а model")]
@@ -20,5 +23,7 @@ namespace CarStoreWeb.Models
         [Required(ErrorMessage = "Please enter а price")]
         [Range(0, int.MaxValue, ErrorMessage = "Price must be positive")]
         public decimal? Price { get; set; }
+       
+
     }
 }

@@ -1,0 +1,40 @@
+﻿@model LoginModel
+
+@{
+    ViewBag.Title = "Log In";
+    Layout = "_AdminLayout";
+}
+
+    <div class="bg-white rounded pl-3 pr-3 pt-2 pb-1 mb-2">
+        <h2>Log In</h2>
+        <p>Please enter details:</p>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <form asp-action="Login" asp-controller="Account" metod="post">
+            <input type="hidden" asp-for="ReturnUrl" />
+            <div class="form-group">
+                <label asp-for="Name"></label>
+
+                <div>
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <input asp-for="Name" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Password"></label>
+                <div>
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <input asp-for="Password" class="form-control" />
+            </div>
+
+            <div class="text-center">
+                <button class="btn btn-primary" type="submit"> Log In </button>
+                <a asp-action="List" asp-controller="Declaration" class="btn btn-primary">Cancel</a>
+            </div>
+
+</form>
+    </div>
+
+

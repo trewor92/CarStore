@@ -15,6 +15,7 @@ namespace CarStoreWeb.Components
         {
             _repository = repo;
         }
+        
         public IViewComponentResult Invoke()
         {
             return View(new NavigationMenuViewComponentViewModel()

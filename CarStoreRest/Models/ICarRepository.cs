@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CarStoreRest.Models
+namespace CarStoreWeb.Models
 {
     public interface ICarRepository
     {

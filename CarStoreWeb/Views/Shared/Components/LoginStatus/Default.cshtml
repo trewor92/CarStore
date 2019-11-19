@@ -1,0 +1,16 @@
+﻿<ul class="nav navbar-nav navbar-right">
+    <li class="px-1" >
+        <a class="text-center btn btn-primary"
+           asp-controller="Account"
+           asp-action="Create">
+            <span>Register</span>
+        </a>
+    </li>
+    <li class="px-1">
+        <form asp-controller="Account" asp-action="Login" method="get">
+            <button type="submit" class="btn btn-btn-link ">
+                Log in <i class="fa fa-sign-in" style="font-size:20px;color:black"></i>
+            </button>
+        </form>
+</li>
+</ul>

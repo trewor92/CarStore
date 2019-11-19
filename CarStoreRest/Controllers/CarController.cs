@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CarStoreRest.Models;
+using CarStoreWeb.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CarStoreRest.Controllers
+namespace CarStoreWeb.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

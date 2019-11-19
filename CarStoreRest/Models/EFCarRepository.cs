@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CarStoreRest.Models
+namespace CarStoreWeb.Models
 {
     public class EFCarRepository : ICarRepository
     {
@@ -27,7 +27,8 @@ namespace CarStoreRest.Models
                 Brand = car.Brand,
                 Model = car.Model,
                 CarDescription = car.CarDescription,
-                Price = car.Price
+                Price = car.Price,
+                Author=car.Author 
             };
             _context.Cars.Add(newCar);
             _context.SaveChanges();

@@ -4,8 +4,12 @@
     <p>Please enter details:</p>
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    <form asp-action="AddItem" method="post">
+    <form asp-action="EditItem" method="post">
         <h3>Car:</h3>
+        <input type="hidden" name="CarID"
+               value="@Model.CarID" />
+        <input type="hidden" name="Author"
+               value="@Model.Author" />
         <div class="form-group">
             <label>Brand:</label>
             <div><span asp-validation-for="Brand" class="text-danger"> </span></div>
@@ -47,7 +51,7 @@
             <input asp-for="CarDescription.YearOfManufacture" class="form-control" />
         </div>
         <div class="text-center">
-            <input class="btn btn-primary" type="submit" value="Add Declaration" />
+            <input class="btn btn-primary" type="submit" value="Save Declaration" />
         </div>
     </form>
 </div>

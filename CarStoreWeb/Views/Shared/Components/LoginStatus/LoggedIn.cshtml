@@ -1,0 +1,21 @@
+﻿@model IdentityUser
+<form asp-controller="Account" asp-action="Logout" method="post" class="navbar-right">
+    <ul class="nav navbar-nav navbar-right">
+        <li class="px-1">
+            <a class="text-center btn btn-primary"
+               asp-controller="Declaration"
+               asp-action="AddItem"
+               asp-route-returnurl="@ViewContext.HttpContext.Request.PathAndQuery()">
+                Add declaration
+            </a>
+        </li>
+        <li class="px-1 btn btn-btn-link">
+            <span class="font-weight-lighter">Hello, @Model.UserName!</span>
+        </li>
+        <li class="px-1">
+            <button type="submit" class="btn btn-btn-link">
+                Log out <i class="fa fa-sign-out" style="font-size:20px;color:black"></i>
+            </button>
+        </li>
+    </ul>
+</form>

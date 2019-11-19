@@ -1,0 +1,14 @@
+﻿<form asp-action="RemoveItem" method="post" class="pull-right">
+    <a asp-action="EditItem" class="btn btn-btn-link px-1"
+       asp-route-CarID="@Model.CarID">
+        <i class="fa fa-edit" style="font-size:20px;color:black;">
+        </i>
+    </a>
+    <input type="hidden" name="CarID"
+           value="@Model.CarID" />
+    
+    <button type="submit" class="btn btn-btn-link px-1"><i class="fa fa-trash" style="font-size:20px;color:black;"></i></button>
+</form>
+
+
+

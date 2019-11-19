@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CarStoreWeb.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20191106073309_Cars")]
-    partial class Cars
+    [Migration("20191118091739_WithAuthorDeclaration")]
+    partial class WithAuthorDeclaration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -26,9 +26,9 @@ namespace CarStoreWeb.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Brand");
+                    b.Property<string>("Author");
 
-                    b.Property<string>("Description");
+                    b.Property<string>("Brand");
 
                     b.Property<string>("Model");
 
@@ -37,6 +37,33 @@ namespace CarStoreWeb.Migrations
                     b.HasKey("CarID");
 
                     b.ToTable("Cars");
+                });
+
+            modelBuilder.Entity("CarStoreRest.Models.Car", b =>
+                {
+                    b.OwnsOne("CarStoreRest.Models.CarDescription", "CarDescription", b1 =>
+                        {
+                            b1.Property<int>("CarID")
+                                .ValueGeneratedOnAdd()
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                            b1.Property<string>("Color");
+
+                            b1.Property<double>("EngineСapacity");
+
+                            b1.Property<string>("FuelType");
+
+                            b1.Property<int>("YearOfManufacture");
+
+                            b1.HasKey("CarID");
+
+                            b1.ToTable("Cars");
+
+                            b1.HasOne("CarStoreRest.Models.Car")
+                                .WithOne("CarDescription")
+                                .HasForeignKey("CarStoreRest.Models.CarDescription", "CarID")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
                 });
 #pragma warning restore 612, 618
         }

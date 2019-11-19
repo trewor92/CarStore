@@ -11,5 +11,6 @@ namespace CarStoreWeb.Models.ViewModels
         public string CurrentCategory { get; set; }
         public PagingInfo PagingInfo { get; set; }
         public SortViewModel SortViewModel { get; set; }
+        public bool IsAuthenticated { get; set; }
     }
 }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 
-namespace CarStoreRest.Models
+namespace CarStoreWeb.Models
 {
     public class ApplicationDbContext : DbContext
     {
