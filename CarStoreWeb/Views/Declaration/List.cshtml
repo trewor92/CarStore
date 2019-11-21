@@ -1,35 +1,34 @@
 ﻿@model DeclarationListViewModel
-    <nav class="nav bg-white rounded p-3 mb-2 ">
-            <a asp-action="List"
-               asp-route-pageNum="1"
-               asp-route-sortOrder="@(Model.SortViewModel.PriceSort)" class="nav-link list-group-flush">
-                Price
-                <i class="fa fa-sort" aria-hidden="true"></i>
-            </a>
-
-            <a asp-action="List"
-               asp-route-pageNum="1"
-               asp-route-sortOrder="@(Model.SortViewModel.YearOfManufactureSort)" class="nav-link list-group-flush">
-                Year Manufacture
-                <i class="fa fa-sort" aria-hidden="true"></i>
-
-            </a>
-            <a asp-action="List"
-               asp-route-pageNum="1"
-               asp-route-sortOrder="@(Model.SortViewModel.FuelTypeSort)" class="nav-link list-group-flush">
-                Fuel Type
-                <i class="fa fa-sort" aria-hidden="true"></i>
-
-            </a>
-            <a asp-action="List"
-               asp-route-pageNum="1"
-               asp-route-sortOrder="@(Model.SortViewModel.EngineСapacitySort)" class="nav-link list-group-flush">
-                Engine Сapacity
-                <i class="fa fa-sort" aria-hidden="true"></i>
-
-            </a>
-
-    </nav>
+<nav class="nav bg-white rounded p-3 mb-2">
+    <a asp-action="List"
+       asp-route-pageNum="1"
+       asp-route-sortOrder="@(Model.SortViewModel.PriceSort)" 
+       class="nav-link list-group-flush">
+            Price
+            <i class="fa fa-sort" aria-hidden="true"></i>
+    </a>
+    <a asp-action="List"
+       asp-route-pageNum="1"
+       asp-route-sortOrder="@(Model.SortViewModel.YearOfManufactureSort)" 
+       class="nav-link list-group-flush">
+            Year Manufacture
+            <i class="fa fa-sort" aria-hidden="true"></i>
+    </a>
+    <a asp-action="List"
+       asp-route-pageNum="1"
+       asp-route-sortOrder="@(Model.SortViewModel.FuelTypeSort)" 
+       class="nav-link list-group-flush">
+            Fuel Type
+            <i class="fa fa-sort" aria-hidden="true"></i>
+    </a>
+    <a asp-action="List"
+       asp-route-pageNum="1"
+       asp-route-sortOrder="@(Model.SortViewModel.EngineСapacitySort)" 
+       class="nav-link list-group-flush">
+            Engine Сapacity
+            <i class="fa fa-sort" aria-hidden="true"></i>
+    </a>
+</nav>
 @foreach (Car c in Model.Cars)
 {
     @Html.Partial("DeclarationSummary", c)
@@ -42,6 +41,7 @@
      page-class-selected="btn-primary"
      page-url-category=@Model.CurrentCategory
      page-url-sortOrder=@(Model.SortViewModel.CurrentSortOrder.HasValue ? Model.SortViewModel.CurrentSortOrder.Value.ToString() : "")
-     class="btn-group pull-right"></div>
+     class="btn-group pull-right">
+</div>
 
 

@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using CarStoreWeb.Models;
 using CarStoreWeb.Models.ViewModels;
+using CarStoreWeb.Models.ViewModels.UserViewModels;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 
@@ -12,12 +14,10 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace CarStoreWeb.Controllers
 {
-    [Authorize]
     public class AccountController : Controller
     {
         private UserManager<IdentityUser> _userManager;
         private SignInManager<IdentityUser> _signInManager;
-
 
         public AccountController(UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager)
@@ -26,12 +26,18 @@ namespace CarStoreWeb.Controllers
             _signInManager = signInManager;
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles="Admin")]
+        public ViewResult Index()
+        {
+            return View(_userManager.Users);
+        }
+
+       
         public ViewResult Login(string returnUrl)
         {
             return View(new LoginModel { ReturnUrl = returnUrl });
         }
-        [AllowAnonymous]
+       
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginModel loginModel)
@@ -56,14 +62,15 @@ namespace CarStoreWeb.Controllers
             return View(loginModel);
         }
 
-        [AllowAnonymous]
+
+      
         [HttpGet]
         public async Task<IActionResult> Create()
         {
             return View(new CreateModel());
         }
 
-        [AllowAnonymous]
+        
         [HttpPost]
         public async Task<IActionResult> Create(CreateModel model)
         {
@@ -76,21 +83,43 @@ namespace CarStoreWeb.Controllers
                 IdentityResult result = await _userManager.CreateAsync(user, model.Password);
 
                 if (result.Succeeded)
-                    return RedirectToAction("List","Declaration");
+                    return await Login(new LoginModel() { Name=model.Name, Password= model.Password});
+
+                //return RedirectToAction("List","Declaration");
                 else
                     foreach (IdentityError error in result.Errors)
                         ModelState.AddModelError("", error.Description);
             }
-
             return View(model);
-
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Logout(string returnUrl = "~/Declaration/List")
         {
             await _signInManager.SignOutAsync();
             return LocalRedirect(returnUrl);
+        }
+
+
+        [Authorize(Roles="Admin")]
+        [HttpPost]
+        public async Task<IActionResult> Delete(string userName)
+        {
+            if (ModelState.IsValid)
+            {
+                IdentityUser user = await _userManager.FindByNameAsync(userName);
+
+                if(user.UserName == HttpContext.User.Identity.Name)
+                    return RedirectToAction("Index");
+                
+                IdentityResult result = await _userManager.DeleteAsync(user);
+
+                if (!result.Succeeded)
+                    foreach (IdentityError error in result.Errors)
+                        ModelState.AddModelError("", error.Description);
+            }
+            return RedirectToAction("Index");  
         }
     }
 }

@@ -2,13 +2,12 @@ body {
     background-color: #6190e8;
     background-image: linear-gradient(to right, #5784d7 0%, #a7bfe8 100%);
     }
-
 .nav-link {
     color: #555;
 }
-
-    .nav-link:hover {
+.nav-link:hover {
         background: #f5f5f5;
     }
+
 
 

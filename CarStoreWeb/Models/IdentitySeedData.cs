@@ -11,13 +11,10 @@ namespace CarStoreWeb.Models
   
     public static class IdentitySeedData
     {
-        private const string adminUser1 = "user1";
-        private const string adminUser2 = "user2";
-        private const string adminUser3 = "user3";
+        private const string adminUser = "Admin";
+        private const string adminRole = "Admin";
 
-        private const string adminPassword = "Secret123$";
-
-        
+        private const string passwords = "Secret123$";
 
         public static async void EnsurePopulated(IApplicationBuilder app)
         {
@@ -26,25 +23,18 @@ namespace CarStoreWeb.Models
             UserManager<IdentityUser> userManager = serviceScope.ServiceProvider
                 .GetService<UserManager<IdentityUser>>();
 
-            IdentityUser user1 = await userManager.FindByIdAsync(adminUser1);
-            IdentityUser user2 = await userManager.FindByIdAsync(adminUser2);
-            IdentityUser user3 = await userManager.FindByIdAsync(adminUser3);
-            if (user1 == null)
-            {
-                user1 = new IdentityUser(adminUser1);
-                await userManager.CreateAsync(user1, adminPassword);
-            }
-            if (user2 == null)
-            {
-                user2 = new IdentityUser(adminUser2);
-                await userManager.CreateAsync(user2, adminPassword);
-            }
-            if (user3 == null)
-            {
-                user3 = new IdentityUser(adminUser3);
-                await userManager.CreateAsync(user3, adminPassword);
-            }
+            RoleManager<IdentityRole> roleManager = serviceScope.ServiceProvider
+                .GetService<RoleManager<IdentityRole>>();
 
+            if (roleManager.Roles.Count() == 0 && userManager.Users.Count() == 0)
+            {
+                IdentityRole adminRl = new IdentityRole(adminRole);
+                await roleManager.CreateAsync(adminRl);
+
+                IdentityUser adminUsr = new IdentityUser(adminUser);
+                await userManager.CreateAsync(adminUsr, passwords);
+                await userManager.AddToRoleAsync(adminUsr, adminRole);
+            }
         }
     }
 }

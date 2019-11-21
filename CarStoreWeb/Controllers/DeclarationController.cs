@@ -84,10 +84,9 @@ namespace CarStoreWeb.Controllers
         [HttpGet]
         public async Task<IActionResult> EditItem(int CarID)
         {
-            var car = _repository.FindCar(CarID);
-            var authorized = await _authService.AuthorizeAsync(User, car, "Authors");
+            bool isCarAuthor = AuthorizeSucceeded(CarID).Result;
 
-            if (!authorized.Succeeded)
+            if (!isCarAuthor)
                 return StatusCode(403);
 
             return View(_repository.FindCar(CarID));
@@ -107,11 +106,11 @@ namespace CarStoreWeb.Controllers
                 TempData["message"] = $"{car.Brand} {car.Model} has been saved!";
                 return RedirectToAction("Completed", new { CarID = car.CarID });
             }
-            else  //(car.CarID != 0)
+            else  
             {
-                var authorized = await _authService.AuthorizeAsync(User, car, "Authors");
-
-                if (!authorized.Succeeded)
+                bool isCarAuthor = AuthorizeSucceeded(car.CarID).Result;
+              
+                if (!isCarAuthor)
                     return StatusCode(403);
 
                 _repository.EditCar(car);
@@ -124,9 +123,9 @@ namespace CarStoreWeb.Controllers
         public async Task<IActionResult> RemoveItem(int CarID)
         {
             var car = _repository.FindCar(CarID);
-            var authorized = await _authService.AuthorizeAsync(User, car, "Authors");
+            bool isCarAuthor = AuthorizeSucceeded(CarID).Result;
 
-            if (car != null && authorized.Succeeded)
+            if (car != null && isCarAuthor)
             {
                 _repository.DeleteCar(CarID);
                 TempData["message"] = $"{car.Brand} {car.Model} was deleted!";
@@ -134,13 +133,28 @@ namespace CarStoreWeb.Controllers
             }
             else
                 return StatusCode(403);
-
         }
 
-        public ViewResult Completed(int CarID)
+        [HttpGet]
+        public IActionResult Completed(int CarID)
+        {
+            bool isCarAuthor = AuthorizeSucceeded(CarID).Result;
+            if (isCarAuthor)
+            {
+                var car = _repository.FindCar(CarID);
+                return View(car);
+            }
+            else
+                return StatusCode(403);
+        }
+
+        [NonAction]
+        private async Task<bool> AuthorizeSucceeded(int CarID)
         {
             var car = _repository.FindCar(CarID);
-            return View(car);
+            var authorized = await _authService.AuthorizeAsync(User, car, "Authors");
+
+            return authorized.Succeeded;
         }
     }
 }

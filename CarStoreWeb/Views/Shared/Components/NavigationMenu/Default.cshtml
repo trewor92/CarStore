@@ -6,7 +6,7 @@
        asp-route-category=""
        asp-route-pageNum=""
        asp-route-sortOrder="">
-        <span>Home</span>
+            <span>Home</span>
     </a>
 
     @foreach (var brand in Model.Categories)
@@ -17,8 +17,8 @@
            asp-route-category=@brand.Key
            asp-route-pageNum="1"
            asp-route-sortOrder="">
-            @brand.Key
-         <span class="badge badge-primary px-2 rounded-pill ml-2">@brand.Value</span>
+                @brand.Key
+                <span class="badge badge-primary px-2 rounded-pill ml-2">@brand.Value</span>
         </a>    
      }
 </nav>

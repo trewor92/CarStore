@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CarStoreWeb.Models
+namespace CarStoreWeb.Models.ViewModels.UserViewModels
 {
     public class CreateModel
     {
@@ -13,11 +13,14 @@ namespace CarStoreWeb.Models
         public string Name { get; set; }
 
         [Required]
+        [UIHint("password")]
+
         [Compare(nameof(ConfirmPassword), ErrorMessage="Password and Confirm Password cannot be different")]
         public string Password { get; set; }
 
         [Required]
-        public string ConfirmPassword { get; set; }
+        [UIHint("password")]
 
+        public string ConfirmPassword { get; set; }
     }
 }

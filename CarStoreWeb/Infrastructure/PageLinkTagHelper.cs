@@ -34,7 +34,6 @@ namespace CarStoreWeb.Infrastructure
         [HtmlAttributeName(DictionaryAttributePrefix = "page-url-")]
         public Dictionary<string, object> PageUrlValues { get; set; } =
             new Dictionary<string, object>();
-
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
             

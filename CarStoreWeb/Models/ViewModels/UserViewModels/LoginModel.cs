@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CarStoreWeb.Models.ViewModels
+namespace CarStoreWeb.Models.ViewModels.UserViewModels
 {
     public class LoginModel
     {

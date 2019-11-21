@@ -19,7 +19,6 @@ namespace CarStore
 {
     public class Startup
     {
-
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
 
@@ -44,11 +43,11 @@ namespace CarStore
                 options.UseSqlServer(_configuration["Data:CarStoreCars:AppIdentityDbContext:ConnectionString"]));
             services.AddIdentity<IdentityUser, IdentityRole>()
                .AddEntityFrameworkStores<AppIdentityDbContext>();
-            services.AddTransient<IAuthorizationHandler,DocumentAuthorizationHandler>();
+            services.AddTransient<IAuthorizationHandler,AuthorAuthorizationHandler>();
             services.AddAuthorization(opts => {
                 opts.AddPolicy("Authors", policy =>
                 {
-                    policy.AddRequirements(new DocumentAuthorizationRequirement
+                    policy.AddRequirements(new AuthorAuthorizationRequirement
                     {
                         AllowAuthors = true
                     });
@@ -56,7 +55,6 @@ namespace CarStore
             });
 
         }
-
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -82,10 +80,9 @@ namespace CarStore
                             template: "{controller}/{action}/{pageNum?}/{sortOrder?}",
                             defaults: new { controller = "Declaration", action = "List" }
                             );
-            //после сортировки в разделе home, вид сортировки переходит на другие разделы, только при такой маршрутизации
+            
             });
             IdentitySeedData.EnsurePopulated(app);
-
         }
     }
 }

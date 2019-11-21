@@ -34,7 +34,6 @@ namespace CarStoreWeb.Models
             
             return response;
         }
-
         public IEnumerable<Car> Cars
         {
             get

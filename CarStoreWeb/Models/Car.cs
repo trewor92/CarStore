@@ -13,7 +13,6 @@ namespace CarStoreWeb.Models
     {
 
         public int CarID { get; set; }
-       // [BindNever]
         public string Author { get; set; }
         [Required(ErrorMessage = "Please enter а brand")]
         public string Brand { get; set; }
@@ -23,7 +22,5 @@ namespace CarStoreWeb.Models
         [Required(ErrorMessage = "Please enter а price")]
         [Range(0, int.MaxValue, ErrorMessage = "Price must be positive")]
         public decimal? Price { get; set; }
-       
-
     }
 }

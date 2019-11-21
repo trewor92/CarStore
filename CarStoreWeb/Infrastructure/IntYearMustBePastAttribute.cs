@@ -9,12 +9,8 @@ namespace CarStoreWeb.Infrastructure
     public class IntYearMustBePastAttribute : Attribute, IModelValidator
     {
         public bool IsRequired => true;
-
         private const int _minYear=1900;
-
         public string ErrorMessage { get; set; } = $"Year must be from {_minYear} to {DateTime.Now.Year}";
-
-
 
         public IEnumerable<ModelValidationResult> Validate(ModelValidationContext context)
         {

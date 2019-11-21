@@ -6,14 +6,13 @@
         <span class="pull-right label label-primary">
             @Model.Price?.ToString("c", new CultureInfo("en-US"))
         </span>   
-</h3>      
+    </h3>      
      <ul>
         <li>Year Of Manufacture: @Model.CarDescription.YearOfManufacture</li>
         <li>Color: @Model.CarDescription.Color</li>
         <li>Fuel Type: @Model.CarDescription.FuelType</li>
         <li>
-            Engine Capacity: @Model.CarDescription.EngineСapacity
-       
+            Engine Capacity: @Model.CarDescription.  
             @await Component.InvokeAsync("DeleteEditButton",new { author = Model.Author })
         </li>
      </ul>

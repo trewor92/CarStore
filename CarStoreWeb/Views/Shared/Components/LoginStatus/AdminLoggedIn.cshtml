@@ -9,11 +9,27 @@
                 Add declaration
             </a>
         </li>
-        
+
+        <li class="px-1 pt-lg-3">
+            <a class="text-center btn btn-primary"
+               asp-controller="RoleAdmin"
+               asp-action="Edit">
+                Edit users role
+            </a>
+        </li>
+
+        <li class="px-1 pt-lg-3">
+            <a class="text-center btn btn-primary"
+               asp-controller="Account"
+               asp-action="Index">
+                Users
+            </a>
+        </li>
+
         <li>
             <div class="pt-2 px-2">Hello, @Model.UserName!</div>
             <button type="submit" class="btn btn-btn-link">
-            Log out <i class="fa fa-sign-out" style="font-size:20px;color:black"></i>
+                Log out <i class="fa fa-sign-out" style="font-size:20px;color:black"></i>
             </button>
         </li>
     </ul>

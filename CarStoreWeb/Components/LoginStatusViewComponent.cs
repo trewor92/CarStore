@@ -24,7 +24,11 @@ namespace CarStoreWeb.Components
             if (_signInManager.IsSignedIn(HttpContext.User))
             {
                 var user = await _userManager.GetUserAsync(HttpContext.User);
-                return View("LoggedIn", user);
+
+                if (HttpContext.User.IsInRole("Admin"))
+                    return View("AdminLoggedIn", user);
+                else
+                    return View("LoggedIn", user);
             }
             else
             {
