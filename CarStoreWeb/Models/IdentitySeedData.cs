@@ -14,6 +14,7 @@ namespace CarStoreWeb.Models
         private const string adminUser = "Admin";
         private const string adminRole = "Admin";
 
+
         private const string passwords = "Secret123$";
 
         public static async void EnsurePopulated(IApplicationBuilder app)
