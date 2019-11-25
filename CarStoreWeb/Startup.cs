@@ -34,6 +34,7 @@ namespace CarStore
 
         public void ConfigureServices(IServiceCollection services)
         {
+            
             services.AddTransient<ICarRepository>(s=>new RemoteCarRepository(_configuration["Data:CarStoreCars:WebApiUrl"]));
             services.AddMvc();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
