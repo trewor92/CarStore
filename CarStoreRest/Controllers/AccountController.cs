@@ -1,132 +1,108 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
-using AutoMapper;
-using CarStoreRest.Infrastructure;
 using CarStoreRest.Models;
-using CarStoreRest.Models.ViewModels;
+using CarStoreRest.Models.ApiModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using CarStoreRest.Infrastructure;
+
 
 namespace CarStoreRest.Controllers
 {
-    [Authorize]
-    [Route("api/[controller]")]
     [ApiController]
-
+    [Route("api/[controller]/[action]")]
     public class AccountController : Controller
     {
-        private IUserService _userService;
-        private readonly AppSettings _appSettings;
-        private IMapper _mapper;
+        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly ITokenManager _tokenRepository;
+    
 
-        public AccountController(IUserService userService, IOptions<AppSettings> appSettings, IMapper mapper)
+        public AccountController(
+            UserManager<IdentityUser> userManager,
+            SignInManager<IdentityUser> signInManager,
+            ITokenManager tokenRepository
+           
+            )
         {
-            _userService = userService;
-            _appSettings = appSettings.Value
-                ;
-            _mapper = mapper;
-        }
-
-        [AllowAnonymous]
-        [HttpPost("authenticate")]
-        public IActionResult Authenticate([FromBody]UserViewModel userViewModel)
-        {
-            var user = _userService.Authenticate(userViewModel.Username, userViewModel.Password);
-
-            if (user == null)
-                return BadRequest(new { message = "Username or password is incorrect" });
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.Name, user.Id.ToString())
-                }),
-                Expires = DateTime.UtcNow.AddDays(7),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var tokenString = tokenHandler.WriteToken(token);
-
-            // return basic user info (without password) and token to store client side
-            return Ok(new
-            {
-                Id = user.Id,
-                Username = user.Username,
-                Token = tokenString
-            });
-        }
-
-        [AllowAnonymous]
-        [HttpPost("register")]
-        public IActionResult Register([FromBody]UserViewModel userViewModel)
-        {
-            var user = _mapper.Map<User>(userViewModel);
-            try
-            {
-                // save 
-                _userService.Create(user, userViewModel.Password);
-                return Ok();
-            }
-            catch (AppException ex)
-            {
-                // return error message if there was an exception
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-
-        [AllowAnonymous]
-        [HttpGet]
-        public IActionResult GetAll()
-        {
-            var users = _userService.GetAll();
-                var userViewModels = _mapper.Map<IList<UserViewModel>>(users);
-            return Ok(userViewModels);
-        }
-
-        [HttpGet("{id}")]
-        public IActionResult GetById(int id)
-        {
-            var user = _userService.GetById(id);
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _tokenRepository = tokenRepository;
             
-            var userViewModel = _mapper.Map<UserViewModel>(user);
-            return Ok(userViewModel);
         }
 
-        [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody]UserViewModel userViewModel)
+        [HttpPost]
+        public async Task<IActionResult> Register([FromBody] CreateModel createModel)
         {
-            // map dto to entity and set id
-            var user = _mapper.Map<User>(userViewModel);
-            user.Id = id;
+            if (ModelState.IsValid)
+            {
+                IdentityUser user = new IdentityUser()
+                {
+                    UserName = createModel.Name
+                };
+                IdentityResult result = await _userManager.CreateAsync(user, createModel.Password);
 
-            try
-            {
-                // save 
-                _userService.Update(user, userViewModel.Password);
-                return Ok();
+                if (result.Succeeded)
+                {
+                    await _signInManager.SignInAsync(user, false);
+
+                    return Ok(createModel.Password.Crypt()); // return Crypt for test, in really project return UserName and Password!!!
+                }
             }
-            catch (AppException ex)
-            {
-                // return error message if there was an exception
-                return BadRequest(new { message = ex.Message });
-            }
+            throw new ApplicationException("UNKNOWN_REGISTER_ERROR");
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        [HttpPost]
+        public async Task<object> Login([FromBody] LoginModel loginModel)
         {
-            _userService.Delete(id);
-            return Ok();
+            if (ModelState.IsValid)
+            {
+                IdentityUser user =
+                    await _userManager.FindByNameAsync(loginModel.Name);
+                if (user != null)
+                {
+                    await _signInManager.SignOutAsync();
+                    
+                    
+                    if ((await _signInManager.PasswordSignInAsync(user,
+                        loginModel.Password, false, false)).Succeeded)
+                    {
+                        return Ok(_tokenRepository.GenerateToken(user).Result);
+                    }
+                }
+            }
+            throw new ApplicationException("INVALID_LOGIN_ATTEMPT");
+        }
+
+        [HttpPost]
+        public async Task<object> Refresh([FromBody] Token token)
+        {
+            if (ModelState.IsValid)
+            {
+                IdentityUser user = await _tokenRepository.GetIdentityUserFromExpireTokenAsync(token.AccessToken);
+
+                if (user != null)
+                {
+                    var savedRefreshToken = await _tokenRepository.GetSavedTokenAsync(user); //retrieve the refresh token from a data store
+
+                    if (savedRefreshToken != token.RefreshToken)
+                        throw new SecurityTokenException("INVALID_REFRESHTOKEN_ATTEMPT");
+
+                    return Ok(_tokenRepository.GenerateToken(user).Result);
+                    
+                }
+                throw new ApplicationException("INVALID_DATA_IN_TOKEN");
+            }
+            throw new ApplicationException("INVALID_REFRESHTOKEN_ATTEMPT");
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<object> Protected()
+        {
+            return "Protected area";
         }
     }
 }

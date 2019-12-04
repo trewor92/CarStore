@@ -1,4 +1,4 @@
-﻿@model Car
+﻿@model CarViewModel
 <div class="bg-white rounded pl-3 pr-3 pt-2 pb-1 mb-2">
     <h2>Add declaration right now!</h2>
     <p>Please enter details:</p>
@@ -10,6 +10,8 @@
                value="@Model.CarID" />
         <input type="hidden" name="Author"
                value="@Model.Author" />
+        <input type="hidden" name="ApiUser"
+               value="@Model.ApiUser" />
         <div class="form-group">
             <label>Brand:</label>
             <div><span asp-validation-for="Brand" class="text-danger"> </span></div>

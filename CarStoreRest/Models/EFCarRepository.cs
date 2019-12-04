@@ -1,16 +1,18 @@
-﻿using System;
+﻿using AutoMapper;
+using CarStoreRest.Models.ApiModels;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace CarStoreWeb.Models
 {
     public class EFCarRepository : ICarRepository
     {
         private ApplicationDbContext _context;
-        public EFCarRepository(ApplicationDbContext ctx)
+        private readonly IMapper _mapper;
+        public EFCarRepository(ApplicationDbContext ctx, IMapper mapper)
         {
             _context = ctx;
+            _mapper = mapper;
         }
 
         public IEnumerable<Car> Cars => _context.Cars;
@@ -19,30 +21,18 @@ namespace CarStoreWeb.Models
             return _context.Cars
                 .FirstOrDefault(c => c.CarID == carID);
         }
-
         public Car AddCar(Car car)
         {
-            Car newCar = new Car
-            {
-                Brand = car.Brand,
-                Model = car.Model,
-                CarDescription = car.CarDescription,
-                Price = car.Price,
-                Author=car.Author 
-            };
-            _context.Cars.Add(newCar);
+            _context.Cars.Add(car);
             _context.SaveChanges();
-            return newCar;
+            return car;
         }
-        public void EditCar(Car car)
+        public void EditCar(Car car, int carID)
         {
-            Car currentCar = FindCar(car.CarID);
+            Car currentCar = FindCar(carID);
             if (currentCar!=null)
             {
-                currentCar.Brand = car.Brand;
-                currentCar.Model = car.Model;
-                currentCar.CarDescription = car.CarDescription;
-                currentCar.Price = car.Price;
+                _mapper.Map<Car, Car>(car, currentCar);
             }
             _context.SaveChanges();
         }

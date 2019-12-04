@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace CarStoreWeb.Models.ViewModels
+﻿namespace CarStoreWeb.Models.ViewModels
 {
     public class SortViewModel
     {
-        public SortState YearOfManufactureSort { get; private set; } // значение для сортировки
-        public SortState FuelTypeSort { get; private set; }    // значение для сортировки
-        public SortState EngineСapacitySort { get; private set; }   // значение для сортировки 
-        public SortState PriceSort { get; private set; }   // значение для сортировки 
+        public SortState YearOfManufactureSort { get; private set; } //value for sort
+        public SortState FuelTypeSort { get; private set; }    //value for sort
+        public SortState EngineСapacitySort { get; private set; }   //value for sort 
+        public SortState PriceSort { get; private set; }   //value for sort 
         public SortState? CurrentSortOrder { get; private set; }
 
         public SortViewModel(SortState? sortOrder)
@@ -20,7 +15,6 @@ namespace CarStoreWeb.Models.ViewModels
             FuelTypeSort = sortOrder == SortState.FuelTypeAsc ? SortState.FuelTypeDesc : SortState.FuelTypeAsc;
             EngineСapacitySort = sortOrder == SortState.EngineCapacityAsc ? SortState.EngineCapacityDesc : SortState.EngineCapacityAsc;
             PriceSort = sortOrder == SortState.PriceAsc ? SortState.PriceDesc : SortState.PriceAsc;
-
         }
     }
 }

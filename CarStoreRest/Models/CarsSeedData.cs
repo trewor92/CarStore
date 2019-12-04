@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -20,7 +17,8 @@ namespace CarStoreWeb.Models
                 _context.Cars.AddRange(
                 new Car
                 {
-                    Author ="user1",
+                    Author ="Admin",
+                    ApiUser="user1",
                     Brand = "BMW",
                     Model = "X5",
                     CarDescription = new CarDescription
@@ -34,7 +32,8 @@ namespace CarStoreWeb.Models
                 },
                 new Car
                 {
-                    Author = "user2",
+                    Author = "Admin",
+                    ApiUser = "user2",
                     Brand = "Toyota",
                     Model = "Prius",
                     CarDescription = new CarDescription
@@ -48,7 +47,8 @@ namespace CarStoreWeb.Models
                 },
                 new Car
                 {
-                    Author = "user3",
+                    Author = "Admin",
+                    ApiUser = "user1",
                     Brand = "Audi",
                     Model = "A4",
                     CarDescription = new CarDescription
@@ -63,6 +63,7 @@ namespace CarStoreWeb.Models
                 new Car
                 {
                     Author = "user1",
+                    ApiUser = "user2",
                     Brand = "Toyota",
                     Model = "Avensis",
                     CarDescription = new CarDescription
@@ -76,8 +77,9 @@ namespace CarStoreWeb.Models
                 },
                 new Car
                 {
-                    Author = "user2",
+                    Author = "user1",
                     Brand = "BMW",
+                    ApiUser = "user1",
                     Model = "X3",
                     CarDescription = new CarDescription
                     {
@@ -91,6 +93,7 @@ namespace CarStoreWeb.Models
                 new Car
                 {
                     Author = "user3",
+                    ApiUser = "user2",
                     Brand = "Audi",
                     Model = "A6",
                     CarDescription = new CarDescription
@@ -105,6 +108,7 @@ namespace CarStoreWeb.Models
                 new Car
                 {
                     Author = "user1",
+                    ApiUser = "user1",
                     Brand = "BMW",
                     Model = "525",
                     CarDescription = new CarDescription
@@ -119,6 +123,7 @@ namespace CarStoreWeb.Models
                 new Car
                 {
                     Author = "user2",
+                    ApiUser = "user2",
                     Brand = "BMW",
                     Model = "320",
                     CarDescription = new CarDescription
@@ -133,6 +138,7 @@ namespace CarStoreWeb.Models
                 new Car
                 {
                     Author = "user3",
+                    ApiUser = "user1",
                     Brand = "BMW",
                     Model = "750",
                     CarDescription = new CarDescription

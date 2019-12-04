@@ -1,4 +1,4 @@
-﻿@model Car
+﻿@model CarViewModel
 <div class="bg-white rounded pl-3 pr-3 pt-2 pb-1 mb-2">
     <h3>
         <strong>@Model.Brand</strong>
@@ -12,8 +12,8 @@
         <li>Color: @Model.CarDescription.Color</li>
         <li>Fuel Type: @Model.CarDescription.FuelType</li>
         <li>
-            Engine Capacity: @Model.CarDescription.  
-            @await Component.InvokeAsync("DeleteEditButton",new { author = Model.Author })
+            Engine Capacity: @Model.CarDescription.EngineСapacity  
+            @await Component.InvokeAsync("DeleteEditButton",new { IsAuthorized = Model.IsAuthorized })
         </li>
      </ul>
 </div>

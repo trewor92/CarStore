@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -8,10 +7,10 @@ using CarStoreRest.Infrastructure;
 using CarStoreRest.Models;
 using CarStoreWeb.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,90 +26,74 @@ namespace CarStoreRest
         {
             _configuration = new ConfigurationBuilder()
                            .SetBasePath(env.ContentRootPath)
+                           .AddJsonFile($"appsettings.json")
                            .AddJsonFile($"appsettings.{env.EnvironmentName}.json")
                            .Build();
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
-           // services.AddCors(); //???
-
             services.AddDbContext<ApplicationDbContext>(options =>
-               options.UseSqlServer(_configuration["Data:CarStoreCars:ApplicationDbContext:ConnectionString"]));
+               options.UseSqlServer(_configuration["Data:ApplicationDbContext:ConnectionString"]));
+
             services.AddDbContext<AppIdentityDbContext>(options =>
-               options.UseSqlServer(_configuration["Data:CarStoreCars:AppIdentityDbContext:ConnectionString"]));
+               options.UseSqlServer(_configuration["Data:AppIdentityDbContext:ConnectionString"]));
 
-           services.AddMvc();//.SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-            services.AddAutoMapper();
-
-            // configure strongly typed settings objects
-            var appSettingsSection = _configuration.GetSection("Data").GetSection("CarStoreCars").GetSection("AppSettings");
-            services.Configure<AppSettings>(appSettingsSection);
-
-            // configure jwt authentication
-            var appSettings = appSettingsSection.Get<AppSettings>();
-            var key = Encoding.ASCII.GetBytes(appSettings.Secret);
-            services.AddAuthentication(x =>
-            {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(x =>
-            {
-                x.Events = new JwtBearerEvents
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<AppIdentityDbContext>()
+                .AddDefaultTokenProviders().AddTokenProvider(_configuration["Data:AppSettings:LoginProviderName"], typeof(DataProtectorTokenProvider<IdentityUser>));
+        
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+            services.AddAuthentication(options =>{
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;})
+                    .AddJwtBearer(cfg =>{
+                        cfg.RequireHttpsMetadata = false;
+                        cfg.SaveToken = true;
+                        cfg.TokenValidationParameters = new TokenValidationParameters{
+                            ValidateIssuer =false,
+                            ValidateAudience = false,
+                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Data:AppSettings:JwtKey"])),
+                            ClockSkew = TimeSpan.Zero}; // remove delay of token when expire                                                
+                        cfg.Events = new JwtBearerEvents{
+                            OnAuthenticationFailed = context => { 
+                                if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+                                {
+                                    context.Response.Headers.Add("Token-Expired", "true");
+                                }
+                                return Task.CompletedTask;
+                            }
+                        };
+                    });
+            services.AddTransient<IAuthorizationHandler, AuthorAuthorizationHandler>();
+            services.AddAuthorization(opts => {
+                opts.AddPolicy("Authors", policy =>
                 {
-                    OnTokenValidated = context =>
+                    policy.AddRequirements(new AuthorAuthorizationRequirement
                     {
-                        var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
-                        var userId = int.Parse(context.Principal.Identity.Name);
-                        var user = userService.GetById(userId);
-                        if (user == null)
-                        {
-                            // return unauthorized if user no longer exists
-                            context.Fail("Unauthorized");
-                        }
-                        return Task.CompletedTask;
-                    }
-                };
-                x.RequireHttpsMetadata = false;
-                x.SaveToken = true;
-                x.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false
-                };
+                       
+                    });
+                });
             });
-
-            services.AddScoped<IUserService, UserService>();
-         
-
+            services.AddAutoMapper();
+            services.AddMvc();
             services.AddTransient<ICarRepository, EFCarRepository>();
-            
+            services.AddTransient<ITokenManager, TokenManagerOnUserManager>();
         }
-      
+
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-            
-            
             app.UseStatusCodePages();
             app.UseStaticFiles();
-
-     /*       app.UseCors(x => x
-                .AllowAnyOrigin()
-                .AllowAnyMethod()
-                .AllowAnyHeader());
-
-    */
             app.UseAuthentication();
-
             app.UseMvc();
             CarsSeedData.EnsurePopulated(app);
+            IdentitySeedData.EnsurePopulated(app);
         }
     }
 }

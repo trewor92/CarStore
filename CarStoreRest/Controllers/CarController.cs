@@ -1,24 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using AutoMapper;
+using CarStoreRest.Models.ApiModels;
 using CarStoreWeb.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace CarStoreWeb.Controllers
 {
     [Authorize]
-
     [Route("api/[controller]")]
     [ApiController]
     public class CarController : Controller
     {
-        private ICarRepository _repository;
-        public CarController(ICarRepository repo)
+        private readonly ICarRepository _repository;
+        private IAuthorizationService _authService;
+        private readonly IMapper _mapper;
+
+        public CarController(ICarRepository repo, IAuthorizationService authService, IMapper mapper)
         {
             _repository = repo;
+            _authService = authService;
+            _mapper = mapper;
         }
 
         // GET: api/Car
@@ -47,27 +52,38 @@ namespace CarStoreWeb.Controllers
 
         // POST: api/Car
         [HttpPost]
-        public IActionResult Add([FromBody] Car car)
+        public IActionResult Add([FromBody] CarAddApiModel carAddApiModel)
         {
-            if (car == null)
+            if (carAddApiModel == null)
                 return BadRequest();
 
-            var newCar = _repository.AddCar(car);
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            carAddApiModel.ApiUser = identity.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub).Value;
+
+            Car car = _mapper.Map<Car>(carAddApiModel);
+            Car newCar = _repository.AddCar(car);
             return CreatedAtRoute(nameof(Get), new { carID = newCar.CarID }, newCar);
         }
 
         // PUT: api/Car/5
-        [HttpPut]
-        public IActionResult Edit([FromBody] Car car)
+        [HttpPut("{carID}")]
+        public IActionResult Edit([FromBody] CarEditApiModel carEditApiModel, int carID)
         {
-            if (car == null)
+            if (carEditApiModel == null)
                 return BadRequest();
 
-            var currentCar = _repository.FindCar(car.CarID);
+            var currentCar = _repository.FindCar(carID);
             if (currentCar == null)
                 return NotFound();
 
-            _repository.EditCar(car);
+            bool isCarAuthor = AuthorizeSucceeded(currentCar).Result;
+
+            if (!isCarAuthor)
+                return StatusCode(403);
+
+            _mapper.Map<CarEditApiModel, Car>(carEditApiModel, currentCar);
+            
+            _repository.EditCar(currentCar, carID);
             return CreatedAtRoute(nameof(Get), new { carID = currentCar.CarID }, currentCar);
         }
 
@@ -79,9 +95,23 @@ namespace CarStoreWeb.Controllers
             if (currentCar == null)
                 return NotFound();
 
+            bool isCarAuthor = AuthorizeSucceeded(currentCar).Result;
+
+            if (!isCarAuthor)
+                return StatusCode(403);
+
             _repository.DeleteCar(carID);
 
             return new NoContentResult();
+        }
+
+        [NonAction]
+        private async Task<bool> AuthorizeSucceeded(Car car)
+        {
+
+            var authorized = await _authService.AuthorizeAsync(User, car, "Authors");
+
+            return authorized.Succeeded;
         }
     }
 }

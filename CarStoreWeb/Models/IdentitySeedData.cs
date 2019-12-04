@@ -1,19 +1,14 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace CarStoreWeb.Models
 {
-  
     public static class IdentitySeedData
     {
         private const string adminUser = "Admin";
         private const string adminRole = "Admin";
-
 
         private const string passwords = "Secret123$";
 

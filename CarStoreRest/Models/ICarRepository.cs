@@ -1,7 +1,5 @@
-﻿using System;
+﻿using CarStoreRest.Models.ApiModels;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace CarStoreWeb.Models
 {
@@ -10,7 +8,7 @@ namespace CarStoreWeb.Models
         IEnumerable<Car> Cars { get; }
         Car FindCar(int carID);
         Car AddCar(Car car);
-        void EditCar(Car car);
+        void EditCar(Car car, int carID);
         Car DeleteCar(int carID);
     }
 }

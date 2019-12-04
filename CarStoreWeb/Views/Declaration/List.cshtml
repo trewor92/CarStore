@@ -29,7 +29,7 @@
             <i class="fa fa-sort" aria-hidden="true"></i>
     </a>
 </nav>
-@foreach (Car c in Model.Cars)
+@foreach (CarViewModel c in Model.CarViewModels)
 {
     @Html.Partial("DeclarationSummary", c)
 }

@@ -1,16 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CarStoreWeb.Models;
-using CarStoreWeb.Models.ViewModels;
+﻿using System.Threading.Tasks;
 using CarStoreWeb.Models.ViewModels.UserViewModels;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace CarStoreWeb.Controllers
 {
@@ -53,7 +45,7 @@ namespace CarStoreWeb.Controllers
                     if ((await _signInManager.PasswordSignInAsync(user,
                         loginModel.Password, false, false)).Succeeded)
                     {
-                        return LocalRedirect(loginModel?.ReturnUrl ?? "~/Declaration/List");
+                        return LocalRedirect(loginModel?.ReturnUrl??"/");
                     }
                 }
             }
@@ -62,10 +54,8 @@ namespace CarStoreWeb.Controllers
             return View(loginModel);
         }
 
-
-      
         [HttpGet]
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
             return View(new CreateModel());
         }
@@ -83,12 +73,16 @@ namespace CarStoreWeb.Controllers
                 IdentityResult result = await _userManager.CreateAsync(user, model.Password);
 
                 if (result.Succeeded)
-                    return await Login(new LoginModel() { Name=model.Name, Password= model.Password});
-
-                //return RedirectToAction("List","Declaration");
+                {
+                    return await Login(new LoginModel() { Name = model.Name, Password = model.Password });
+                }
                 else
+                {
                     foreach (IdentityError error in result.Errors)
+                    {
                         ModelState.AddModelError("", error.Description);
+                    }
+                }
             }
             return View(model);
         }
@@ -100,7 +94,6 @@ namespace CarStoreWeb.Controllers
             await _signInManager.SignOutAsync();
             return LocalRedirect(returnUrl);
         }
-
 
         [Authorize(Roles="Admin")]
         [HttpPost]

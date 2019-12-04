@@ -36,7 +36,6 @@ namespace CarStoreWeb.Infrastructure
             new Dictionary<string, object>();
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
-            
             IUrlHelper urlHelper = _urlHelperFactory.GetUrlHelper(ViewContext);
             TagBuilder result = new TagBuilder("div");
             for (int i = 1; i <= PageModel.TotalPages; i++)

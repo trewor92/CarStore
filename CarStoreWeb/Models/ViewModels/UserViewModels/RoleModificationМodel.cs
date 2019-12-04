@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace CarStoreWeb.Models.ViewModels.UserViewModels
 {
@@ -14,5 +10,4 @@ namespace CarStoreWeb.Models.ViewModels.UserViewModels
         public string[] IdsToAdd {get; set;}
         public string[] IdsToDelete{get; set;}
     }
-
 }

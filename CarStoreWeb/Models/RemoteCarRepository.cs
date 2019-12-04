@@ -2,21 +2,29 @@
 using RestSharp;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace CarStoreWeb.Models
 {
     public class RemoteCarRepository : ICarRepository
     {
         RestClient _client;
-        public RemoteCarRepository(string url)
+        private ITokenAuthenticator _authenticator;
+        
+        public RemoteCarRepository(string url, ITokenAuthenticator authenticator)
         {
-            _client = new RestClient(url);
-        }       
+            _client = new RestClient(url)
+            {
+                Authenticator = authenticator,
+                Timeout = 60000
+            };
+            _authenticator = authenticator;
+        }
+
         private IRestResponse SendRequest(Method method, int? carID=null, object obj=null)
-        {
+        {   
             var request= new RestRequest(method);
             
             if (carID.HasValue)
@@ -29,11 +37,20 @@ namespace CarStoreWeb.Models
 
             if (obj != null)
                 request.AddJsonBody(obj);
-
-            IRestResponse response = _client.Execute(request);
             
+            IRestResponse response = _client.Execute(request);
+
+            var tokenExpired = 
+                Convert.ToBoolean(response.Headers.FirstOrDefault(x => x.Name == "Token-Expired")?.Value ?? false);
+
+            if (!response.IsSuccessful && tokenExpired)
+            {
+                _authenticator.RefreshTokens();    
+                response = SendRequest(method, carID, obj);
+            }
             return response;
         }
+        
         public IEnumerable<Car> Cars
         {
             get
@@ -50,13 +67,7 @@ namespace CarStoreWeb.Models
     
         public Car AddCar(Car car)
         {
-            IRestResponse restResponse = SendRequest(Method.POST, null, new Car{
-                Brand = car.Brand,
-                Model = car.Model,
-                CarDescription = car.CarDescription,
-                Price = car.Price,
-                Author=car.Author
-            });
+            IRestResponse restResponse = SendRequest(Method.POST, null, car); 
             if (!restResponse.IsSuccessful)
             {
                 throw new Exception($"Some Error Occured {restResponse.Content}" +
@@ -78,7 +89,7 @@ namespace CarStoreWeb.Models
 
         public void EditCar(Car car) //
         {
-            IRestResponse restResponse = SendRequest(Method.PUT, null, car);
+            IRestResponse restResponse = SendRequest(Method.PUT, car.CarID, car);
             if (!restResponse.IsSuccessful)
             {
                 throw new Exception($"Some Error Occured {restResponse.Content}" +

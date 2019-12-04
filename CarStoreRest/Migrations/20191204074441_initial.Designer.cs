@@ -6,11 +6,11 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace CarStoreWeb.Migrations
+namespace CarStoreRest.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20191118091739_WithAuthorDeclaration")]
-    partial class WithAuthorDeclaration
+    [Migration("20191204074441_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -20,11 +20,13 @@ namespace CarStoreWeb.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("CarStoreRest.Models.Car", b =>
+            modelBuilder.Entity("CarStoreWeb.Models.Car", b =>
                 {
                     b.Property<int>("CarID")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("ApiUser");
 
                     b.Property<string>("Author");
 
@@ -39,9 +41,9 @@ namespace CarStoreWeb.Migrations
                     b.ToTable("Cars");
                 });
 
-            modelBuilder.Entity("CarStoreRest.Models.Car", b =>
+            modelBuilder.Entity("CarStoreWeb.Models.Car", b =>
                 {
-                    b.OwnsOne("CarStoreRest.Models.CarDescription", "CarDescription", b1 =>
+                    b.OwnsOne("CarStoreWeb.Models.CarDescription", "CarDescription", b1 =>
                         {
                             b1.Property<int>("CarID")
                                 .ValueGeneratedOnAdd()
@@ -59,9 +61,9 @@ namespace CarStoreWeb.Migrations
 
                             b1.ToTable("Cars");
 
-                            b1.HasOne("CarStoreRest.Models.Car")
+                            b1.HasOne("CarStoreWeb.Models.Car")
                                 .WithOne("CarDescription")
-                                .HasForeignKey("CarStoreRest.Models.CarDescription", "CarID")
+                                .HasForeignKey("CarStoreWeb.Models.CarDescription", "CarID")
                                 .OnDelete(DeleteBehavior.Cascade);
                         });
                 });

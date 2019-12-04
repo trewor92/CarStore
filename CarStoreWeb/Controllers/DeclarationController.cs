@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using CarStoreWeb.Models;
 using CarStoreWeb.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.Extensions.Configuration;
 
 namespace CarStoreWeb.Controllers
 {
@@ -14,12 +15,16 @@ namespace CarStoreWeb.Controllers
     public class DeclarationController : Controller
     {
         private IAuthorizationService _authService;
-        ICarRepository _repository;
-        const int _pageSize = 3;
-        public DeclarationController(ICarRepository repo, IAuthorizationService auth)
+        private ICarRepository _repository;
+        private readonly int _pageSize;
+        private readonly IMapper _mapper;
+
+        public DeclarationController(ICarRepository repo, IAuthorizationService auth, IConfiguration configuration, IMapper mapper)
         {
             _repository = repo;
             _authService = auth;
+            _pageSize= Convert.ToInt32(configuration["Data:AppSettings:DeclarationController:IntPageSize"]);
+            _mapper = mapper;
         }
         [AllowAnonymous]
         public IActionResult List(string category, int pageNum, SortState? sortOrder)
@@ -58,10 +63,15 @@ namespace CarStoreWeb.Controllers
                     break;
             }
             cars = cars.Skip((pageNum - 1) * _pageSize)
-                    .Take(_pageSize);
+                       .Take(_pageSize);
+            var carsViewModel = cars.Select( c=>
+            {
+                var carViewModel = GetCarViewModel(c);
+                return carViewModel;
+            });
             return View(new DeclarationListViewModel()
             {
-                Cars=cars,// = cars.Select(c => { c.ThisAuthor = HttpContext.User.Identity.Name == c.Author; return c; }),
+                CarViewModels = carsViewModel,
                 CurrentCategory = category,
                 PagingInfo = new PagingInfo()
                 {
@@ -78,26 +88,30 @@ namespace CarStoreWeb.Controllers
         [HttpGet]
         public IActionResult AddItem()
         {
-            return View("EditItem",new Car()); 
+            return View("EditItem",new CarViewModel()); 
         }
 
         [HttpGet]
-        public async Task<IActionResult> EditItem(int CarID)
+        public IActionResult EditItem(int CarID)
         {
             bool isCarAuthor = AuthorizeSucceeded(CarID).Result;
 
             if (!isCarAuthor)
                 return StatusCode(403);
 
-            return View(_repository.FindCar(CarID));
+            Car curentCar = _repository.FindCar(CarID);
+            CarViewModel carViewModel = _mapper.Map<CarViewModel>(curentCar);
+
+            return View(carViewModel);
         }
 
-
         [HttpPost]
-        public async Task<IActionResult> EditItem(Car car)
+        public IActionResult EditItem(CarViewModel carViewModel)
         {
             if (!ModelState.IsValid)
-                return View(car);            
+                return View(carViewModel);
+
+            Car car = _mapper.Map<Car>(carViewModel);
 
             if (car.CarID == 0)
             {
@@ -115,12 +129,12 @@ namespace CarStoreWeb.Controllers
 
                 _repository.EditCar(car);
                 TempData["message"] = $"{car.Brand} {car.Model} has been edited!";
-                return RedirectToAction("Completed",new {CarID= car.CarID });
+                return RedirectToAction(nameof(Completed),new {CarID= car.CarID });
             }
         }
 
         [HttpPost]
-        public async Task<IActionResult> RemoveItem(int CarID)
+        public IActionResult RemoveItem(int CarID)
         {
             var car = _repository.FindCar(CarID);
             bool isCarAuthor = AuthorizeSucceeded(CarID).Result;
@@ -129,7 +143,7 @@ namespace CarStoreWeb.Controllers
             {
                 _repository.DeleteCar(CarID);
                 TempData["message"] = $"{car.Brand} {car.Model} was deleted!";
-                return RedirectToAction("List"); //its safety
+                return RedirectToAction(nameof(List)); //its safety
             }
             else
                 return StatusCode(403);
@@ -142,7 +156,8 @@ namespace CarStoreWeb.Controllers
             if (isCarAuthor)
             {
                 var car = _repository.FindCar(CarID);
-                return View(car);
+                var carViewModel = GetCarViewModel(car);
+                return View(carViewModel);
             }
             else
                 return StatusCode(403);
@@ -152,9 +167,22 @@ namespace CarStoreWeb.Controllers
         private async Task<bool> AuthorizeSucceeded(int CarID)
         {
             var car = _repository.FindCar(CarID);
-            var authorized = await _authService.AuthorizeAsync(User, car, "Authors");
+            return await AuthorizeSucceeded(car);
+        }
 
+        [NonAction]
+        private async Task<bool> AuthorizeSucceeded(Car car)
+        {
+            var authorized = await _authService.AuthorizeAsync(User, car, "Authors");
             return authorized.Succeeded;
         }
+        [NonAction]
+        private CarViewModel GetCarViewModel(Car car)
+        {
+            CarViewModel carViewModel = _mapper.Map<CarViewModel>(car);
+            carViewModel.IsAuthorized = AuthorizeSucceeded(car).Result;
+            return carViewModel;
+        }
+
     }
 }

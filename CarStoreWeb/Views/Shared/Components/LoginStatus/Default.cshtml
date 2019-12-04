@@ -1,4 +1,5 @@
-﻿<ul class="nav navbar-nav navbar-right">
+﻿@model  string
+<ul class="nav navbar-nav navbar-right">
     <li class="px-1" >
         <a class="text-center btn btn-primary"
            asp-controller="Account"
@@ -7,7 +8,8 @@
         </a>
     </li>
     <li class="px-1">
-        <form asp-controller="Account" asp-action="Login" method="get">
+        <form asp-controller="Account" asp-action="Login"  method="get">
+            <input type="hidden" name="returnUrl" value="@Model" />
             <button type="submit" class="btn btn-btn-link ">
                 Log in <i class="fa fa-sign-in" style="font-size:20px;color:black"></i>
             </button>

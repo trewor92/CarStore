@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace CarStoreWeb.Models.ViewModels.UserViewModels
 {
@@ -14,13 +9,11 @@ namespace CarStoreWeb.Models.ViewModels.UserViewModels
 
         [Required]
         [UIHint("password")]
-
         [Compare(nameof(ConfirmPassword), ErrorMessage="Password and Confirm Password cannot be different")]
         public string Password { get; set; }
 
         [Required]
         [UIHint("password")]
-
         public string ConfirmPassword { get; set; }
     }
 }

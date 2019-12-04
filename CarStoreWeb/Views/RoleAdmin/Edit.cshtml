@@ -23,8 +23,8 @@
                 foreach (IdentityUser user in Model.NonМembers)
                 {
                     <tr>
-                        <td>@user.UserName</td>
-                        <td>
+                        <td class="col">@user.UserName</td>
+                        <td class="col">
                             <input type="checkbox" name="IdsToAdd" value="@user.Id">
                         </td>
                     </tr>
@@ -50,8 +50,8 @@
                 foreach (IdentityUser user in Model.Members)
                 {
                     <tr>
-                        <td>@user.UserName</td>
-                        <td>
+                        <td class="col">@user.UserName</td>
+                        <td class="col">
                             <input type="checkbox" name="IdsToDelete" value="@user.Id">
                         </td>
                     </tr>

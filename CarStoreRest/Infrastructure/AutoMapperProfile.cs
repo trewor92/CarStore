@@ -1,11 +1,6 @@
-﻿using CarStoreRest.Models;
-using CarStoreRest.Models.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
-
+﻿using AutoMapper;
+using CarStoreRest.Models.ApiModels;
+using CarStoreWeb.Models;
 
 namespace CarStoreRest.Infrastructure
 {
@@ -14,8 +9,9 @@ namespace CarStoreRest.Infrastructure
     {
         public AutoMapperProfile()
         {
-            CreateMap<User, UserViewModel>();
-            CreateMap<UserViewModel, User>();
+            CreateMap<CarAddApiModel, Car>();
+
+            CreateMap<CarEditApiModel, Car>();
         }
     }
 }
