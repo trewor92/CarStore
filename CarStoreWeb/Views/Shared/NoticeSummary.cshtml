@@ -1,0 +1,23 @@
+﻿@model CarViewModel
+    <div class="bg-white rounded pl-3 pr-3 pt-2 pb-1 mb-2">
+        <h3>
+            <strong>@Model.Brand</strong>
+            <strong>@Model.Model</strong>
+            <span class="pull-right label label-primary">
+                @Model.Price?.ToString("c", new CultureInfo("en-US"))
+            </span>
+        </h3>
+        <ul class="mb-0">
+            <li>Year Of Manufacture: @Model.CarDescription.YearOfManufacture</li>
+            <li>Color: @Model.CarDescription.Color</li>
+            <li>Fuel Type: @Model.CarDescription.FuelType</li>
+            <li>Engine Capacity: @Model.CarDescription.EngineСapacity</li>
+        </ul>   
+            <div class="mb-2">
+                <strong>Contact: @Model.MobileNumber</strong>
+                @await Component.InvokeAsync("DeleteEditButton", new { IsAuthorized = Model.IsAuthorized })
+            </div>
+    </div>
+
+
+          

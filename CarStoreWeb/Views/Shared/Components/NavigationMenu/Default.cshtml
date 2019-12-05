@@ -2,7 +2,7 @@
 <nav class="nav bg-white rounded p-3 ">
     <a class="nav-link px-4 list-group-flush"
        asp-action="List"
-       asp-controller="Declaration"
+       asp-controller=""
        asp-route-category=""
        asp-route-pageNum=""
        asp-route-sortOrder="">
@@ -13,7 +13,7 @@
     {
         <a class="nav-link px-4  @(Model.CurrentCategory!=brand.Key?"list-group-flush" :"list-group-item-primary")"
            asp-action="List"
-           asp-controller="Declaration"
+           asp-controller="Notice"
            asp-route-category=@brand.Key
            asp-route-pageNum="1"
            asp-route-sortOrder="">

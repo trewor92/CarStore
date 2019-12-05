@@ -12,18 +12,18 @@ using Microsoft.Extensions.Configuration;
 namespace CarStoreWeb.Controllers
 {
     [Authorize]
-    public class DeclarationController : Controller
+    public class NoticeController : Controller
     {
         private IAuthorizationService _authService;
         private ICarRepository _repository;
         private readonly int _pageSize;
         private readonly IMapper _mapper;
 
-        public DeclarationController(ICarRepository repo, IAuthorizationService auth, IConfiguration configuration, IMapper mapper)
+        public NoticeController(ICarRepository repo, IAuthorizationService auth, IConfiguration configuration, IMapper mapper)
         {
             _repository = repo;
             _authService = auth;
-            _pageSize= Convert.ToInt32(configuration["Data:AppSettings:DeclarationController:IntPageSize"]);
+            _pageSize= Convert.ToInt32(configuration["Data:AppSettings:NoticeController:IntPageSize"]);
             _mapper = mapper;
         }
         [AllowAnonymous]
@@ -69,7 +69,7 @@ namespace CarStoreWeb.Controllers
                 var carViewModel = GetCarViewModel(c);
                 return carViewModel;
             });
-            return View(new DeclarationListViewModel()
+            return View(new NoticeListViewModel()
             {
                 CarViewModels = carsViewModel,
                 CurrentCategory = category,

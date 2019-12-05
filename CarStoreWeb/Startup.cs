@@ -82,12 +82,12 @@ namespace CarStore
             {
                 routes.MapRoute(name: "1",
                             template: "{controller}/{action}/{category}/{pageNum}/{sortOrder?}",
-                            defaults: new { controller= "Declaration", action= "List" },
+                            defaults: new { controller= "Notice", action= "List" },
                             constraints:new { pageNum=new IntRouteConstraint()});
 
                 routes.MapRoute(name: "2",
                             template: "{controller}/{action}/{pageNum?}/{sortOrder?}",
-                            defaults: new { controller = "Declaration", action = "List" }
+                            defaults: new { controller = "Notice", action = "List" }
                             );
             
             });

@@ -12,5 +12,6 @@ namespace CarStoreWeb.Models
         public string Model { get; set; }
         public CarDescription CarDescription { get; set; }
         public decimal? Price { get; set; }
+        public string MobileNumber { get; set; }
     }
 }

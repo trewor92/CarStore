@@ -21,6 +21,7 @@ namespace CarStoreWeb.Models
                     ApiUser="user1",
                     Brand = "BMW",
                     Model = "X5",
+                    MobileNumber = "+375331234567",
                     CarDescription = new CarDescription
                     {
                         Color = "red",
@@ -36,6 +37,7 @@ namespace CarStoreWeb.Models
                     ApiUser = "user2",
                     Brand = "Toyota",
                     Model = "Prius",
+                    MobileNumber = "+375331234567",
                     CarDescription = new CarDescription
                     {
                         Color = "white",
@@ -51,6 +53,7 @@ namespace CarStoreWeb.Models
                     ApiUser = "user1",
                     Brand = "Audi",
                     Model = "A4",
+                    MobileNumber = "+375331234567",
                     CarDescription = new CarDescription
                     {
                         Color = "blue",
@@ -66,6 +69,7 @@ namespace CarStoreWeb.Models
                     ApiUser = "user2",
                     Brand = "Toyota",
                     Model = "Avensis",
+                    MobileNumber = "+375331234567",
                     CarDescription = new CarDescription
                     {
                         Color = "black",
@@ -81,6 +85,7 @@ namespace CarStoreWeb.Models
                     Brand = "BMW",
                     ApiUser = "user1",
                     Model = "X3",
+                    MobileNumber = "+375331234567",
                     CarDescription = new CarDescription
                     {
                         Color = "pink",
@@ -96,6 +101,7 @@ namespace CarStoreWeb.Models
                     ApiUser = "user2",
                     Brand = "Audi",
                     Model = "A6",
+                    MobileNumber = "+375331234567",
                     CarDescription = new CarDescription
                     {
                         Color = "dark-blue",
@@ -111,6 +117,7 @@ namespace CarStoreWeb.Models
                     ApiUser = "user1",
                     Brand = "BMW",
                     Model = "525",
+                    MobileNumber = "+375331234567",
                     CarDescription = new CarDescription
                     {
                         Color = "silver",
@@ -126,6 +133,7 @@ namespace CarStoreWeb.Models
                     ApiUser = "user2",
                     Brand = "BMW",
                     Model = "320",
+                    MobileNumber = "+375331234567",
                     CarDescription = new CarDescription
                     {
                         Color = "black",
@@ -141,6 +149,7 @@ namespace CarStoreWeb.Models
                     ApiUser = "user1",
                     Brand = "BMW",
                     Model = "750",
+                    MobileNumber = "+375331234567",
                     CarDescription = new CarDescription
                     {
                         Color = "white",

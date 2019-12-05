@@ -20,5 +20,9 @@ namespace CarStoreWeb.Models.ViewModels
         [Range(0, int.MaxValue, ErrorMessage = "Price must be positive")]
         public decimal? Price { get; set; }
         public bool IsAuthorized { get; set; }
+        [Required]
+        [RegularExpression(@"^\+375+[0-9]{2}[0-9]{7}$", ErrorMessage = "Number format must be +375xxxxxxxxx")]
+        public string MobileNumber { get; set; }
+
     }
 }

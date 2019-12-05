@@ -89,7 +89,7 @@ namespace CarStoreWeb.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> Logout(string returnUrl = "~/Declaration/List")
+        public async Task<IActionResult> Logout(string returnUrl = "~/Notice/List")
         {
             await _signInManager.SignOutAsync();
             return LocalRedirect(returnUrl);

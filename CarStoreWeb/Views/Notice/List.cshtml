@@ -1,4 +1,4 @@
-﻿@model DeclarationListViewModel
+﻿@model NoticeListViewModel
 <nav class="nav bg-white rounded p-3 mb-2">
     <a asp-action="List"
        asp-route-pageNum="1"
@@ -31,7 +31,7 @@
 </nav>
 @foreach (CarViewModel c in Model.CarViewModels)
 {
-    @Html.Partial("DeclarationSummary", c)
+    @Html.Partial("NoticeSummary", c)
 }
 <div page-model="@Model.PagingInfo"
      page-action="List"

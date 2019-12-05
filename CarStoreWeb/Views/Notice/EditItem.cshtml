@@ -1,10 +1,16 @@
 ﻿@model CarViewModel
 <div class="bg-white rounded pl-3 pr-3 pt-2 pb-1 mb-2">
-    <h2>Add declaration right now!</h2>
+    <h2>Add notice right now!</h2>
     <p>Please enter details:</p>
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
     <form asp-action="EditItem" method="post">
+        <h3>Contact:</h3>
+        <div class="form-group">
+            <label>Mobile Number:</label>
+            <div><span asp-validation-for="MobileNumber" class="text-danger"> </span></div>
+            <input asp-for="MobileNumber" class="form-control" />
+        </div>
         <h3>Car:</h3>
         <input type="hidden" name="CarID"
                value="@Model.CarID" />
@@ -27,7 +33,6 @@
             <div><span asp-validation-for="Price" class="text-danger"> </span></div>
             <input asp-for="Price" class="form-control" />
         </div>
-        <h3>Description:</h3>
         <div class="form-group">
             <label>Color:</label>
             <div><span asp-validation-for="CarDescription.Color" class="text-danger"> </span></div>
@@ -53,8 +58,9 @@
             <input asp-for="CarDescription.YearOfManufacture" class="form-control" />
         </div>
         <div class="text-center">
-            <input class="btn btn-primary" type="submit" value="Save Declaration" />
+            <input class="btn btn-primary" type="submit" value="Save Notice" />
         </div>
+
     </form>
 </div>
 

@@ -2,7 +2,7 @@
 
 namespace CarStoreWeb.Models.ViewModels
 {
-    public class DeclarationListViewModel
+    public class NoticeListViewModel
     {
         public IEnumerable<CarViewModel> CarViewModels { get; set; }
         public string CurrentCategory { get; set; }
