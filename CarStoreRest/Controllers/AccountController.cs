@@ -5,7 +5,7 @@ using CarStoreRest.Models.ApiModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
+//using Microsoft.IdentityModel.Tokens;
 using CarStoreRest.Infrastructure;
 
 
@@ -18,7 +18,7 @@ namespace CarStoreRest.Controllers
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly ITokenManager _tokenRepository;
-    
+        
 
         public AccountController(
             UserManager<IdentityUser> userManager,
@@ -88,7 +88,7 @@ namespace CarStoreRest.Controllers
                     var savedRefreshToken = await _tokenRepository.GetSavedTokenAsync(user); //retrieve the refresh token from a data store
 
                     if (savedRefreshToken != token.RefreshToken)
-                        throw new SecurityTokenException("INVALID_REFRESHTOKEN_ATTEMPT");
+                        throw new ApplicationException("INVALID_REFRESHTOKEN_ATTEMPT");
 
                     return Ok(_tokenRepository.GenerateToken(user).Result);
                     

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using CarStoreRest.Models.ApiModels;
-using CarStoreWeb.Models;
+using CarStoreRest.Models;
 
 namespace CarStoreRest.Infrastructure
 {
@@ -10,8 +10,10 @@ namespace CarStoreRest.Infrastructure
         public AutoMapperProfile()
         {
             CreateMap<CarAddApiModel, Car>();
+          
 
             CreateMap<CarEditApiModel, Car>();
+            
         }
     }
 }

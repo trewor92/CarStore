@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace CarStoreWeb.Models
+namespace CarStoreRest.Models
 {
     public class CarsSeedData
     {

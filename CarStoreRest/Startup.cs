@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using AutoMapper;
 using CarStoreRest.Infrastructure;
 using CarStoreRest.Models;
-using CarStoreWeb.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;

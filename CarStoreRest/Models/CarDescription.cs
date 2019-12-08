@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace CarStoreWeb.Models
+namespace CarStoreRest.Models
 {
     [Owned]
     public class CarDescription

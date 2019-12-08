@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using CarStoreRest.Models.ApiModels;
-using CarStoreWeb.Models;
+using CarStoreRest.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace CarStoreWeb.Controllers
+namespace CarStoreRest.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
@@ -62,7 +62,7 @@ namespace CarStoreWeb.Controllers
 
             Car car = _mapper.Map<Car>(carAddApiModel);
             Car newCar = _repository.AddCar(car);
-            return CreatedAtRoute(nameof(Get), new { carID = newCar.CarID }, newCar);
+            return CreatedAtRoute(nameof(Get), new { carID = newCar?.CarID }, newCar);
         }
 
         // PUT: api/Car/5
@@ -112,6 +112,7 @@ namespace CarStoreWeb.Controllers
             var authorized = await _authService.AuthorizeAsync(User, car, "Authors");
 
             return authorized.Succeeded;
+
         }
     }
 }

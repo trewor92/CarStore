@@ -1,5 +1,5 @@
 ﻿
-namespace CarStoreWeb.Models
+namespace CarStoreRest.Models
 {
     public class Car
     {

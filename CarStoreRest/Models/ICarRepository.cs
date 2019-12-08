@@ -1,7 +1,7 @@
 ﻿using CarStoreRest.Models.ApiModels;
 using System.Collections.Generic;
 
-namespace CarStoreWeb.Models
+namespace CarStoreRest.Models
 {
     public interface ICarRepository
     {

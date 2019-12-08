@@ -1,4 +1,4 @@
-﻿using CarStoreWeb.Models;
+﻿using CarStoreRest.Models;
 using Microsoft.AspNetCore.Authorization;
 using System;
 using System.IdentityModel.Tokens.Jwt;

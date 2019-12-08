@@ -1,4 +1,4 @@
-﻿using CarStoreWeb.Models;
+﻿using CarStoreRest.Models;
 
 namespace CarStoreRest.Models.ApiModels
 {

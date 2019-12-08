@@ -3,7 +3,7 @@ using CarStoreRest.Models.ApiModels;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CarStoreWeb.Models
+namespace CarStoreRest.Models
 {
     public class EFCarRepository : ICarRepository
     {
