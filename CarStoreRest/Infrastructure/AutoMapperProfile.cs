@@ -13,7 +13,9 @@ namespace CarStoreRest.Infrastructure
           
 
             CreateMap<CarEditApiModel, Car>();
-            
+
+            CreateMap<Car, Car>().ForMember(c => c.CarID, opt => opt.Ignore());
+
         }
     }
 }

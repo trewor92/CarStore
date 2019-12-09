@@ -81,7 +81,7 @@ namespace CarStoreRest.Controllers
             if (!isCarAuthor)
                 return StatusCode(403);
 
-            _mapper.Map<CarEditApiModel, Car>(carEditApiModel, currentCar);
+            _mapper.Map<CarEditApiModel, Car>(carEditApiModel, currentCar); //тут происходит маппинг
             
             _repository.EditCar(currentCar, carID);
             return CreatedAtRoute(nameof(Get), new { carID = currentCar.CarID }, currentCar);

@@ -15,19 +15,21 @@ using System.IdentityModel.Tokens.Jwt;
 
 namespace CarStoreRest.Tests.ControllersTests
 {
+    public class TestAutoMapperProfile : Profile
+    {
+        public TestAutoMapperProfile()
+        {
+            CreateMap<CarAddApiModel, Car>();
+            CreateMap<Car, CarAddApiModel>();
+
+            CreateMap<CarEditApiModel, Car>();
+            CreateMap<Car, CarEditApiModel>();
+            CreateMap<Car, Car>().ForMember(c => c.CarID, opt => opt.Ignore()); 
+        }
+    }
     public class CarControllerTests
     {
-        private class TestAutoMapperProfile : Profile
-        {
-            public TestAutoMapperProfile()
-            {
-                CreateMap<CarAddApiModel, Car>();
-                CreateMap<Car, CarAddApiModel>();
-
-                CreateMap<CarEditApiModel, Car>();
-                CreateMap<Car, CarEditApiModel>();
-            }
-        }
+        
         private CarController _carController;
         private Mock<ICarRepository> _mockRepository;
         private IMapper _mapper;

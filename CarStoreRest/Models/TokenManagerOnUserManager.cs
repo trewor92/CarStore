@@ -47,6 +47,8 @@ namespace CarStoreRest.Models
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.NameId, user.Id)
             };
+
+ 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Data:AppSettings:JwtKey"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var expires = DateTime.Now.AddSeconds(Convert.ToDouble(_configuration["Data:AppSettings:JwtExpireSec"]));
@@ -59,11 +61,12 @@ namespace CarStoreRest.Models
                 signingCredentials: creds
             );
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+           return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         private ClaimsPrincipal GetPrincipalFromExpiredToken(string accessToken)
         {
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
             var tokenValidationParameters = new TokenValidationParameters
             {
                 ValidateAudience = false,
@@ -75,7 +78,7 @@ namespace CarStoreRest.Models
 
             var tokenHandler = new JwtSecurityTokenHandler();
             SecurityToken securityToken;
-            var principal = tokenHandler.ValidateToken(accessToken, tokenValidationParameters, out securityToken);///
+            var principal = tokenHandler.ValidateToken(accessToken, tokenValidationParameters, out securityToken);
             var jwtSecurityToken = securityToken as JwtSecurityToken;
             if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
                 throw new SecurityTokenException("Invalid token");
