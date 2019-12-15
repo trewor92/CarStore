@@ -7,6 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace CarStoreRest.Controllers
 {
@@ -28,9 +29,9 @@ namespace CarStoreRest.Controllers
 
         // GET: api/Car
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var toReturn = _repository.Cars;
+            List<Car> toReturn = await  _repository.GetCarsListAsync();
 
             if (toReturn == null)
                 return NotFound();
@@ -40,9 +41,9 @@ namespace CarStoreRest.Controllers
 
         // GET: api/Car/5
         [HttpGet("{carID}", Name = "Get")]
-        public IActionResult Get(int carID)
+        public async Task<IActionResult> Get(int carID)
         {
-            var car = _repository.FindCar(carID);
+            Car car = await _repository.FindCarAsync(carID);
 
             if (car == null)
                 return NotFound();
@@ -52,27 +53,27 @@ namespace CarStoreRest.Controllers
 
         // POST: api/Car
         [HttpPost]
-        public IActionResult Add([FromBody] CarAddApiModel carAddApiModel)
+        public async Task<IActionResult> Add([FromBody] CarAddApiModel carAddApiModel)
         {
             if (carAddApiModel == null)
                 return BadRequest();
 
-            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            ClaimsIdentity identity = HttpContext.User.Identity as ClaimsIdentity;
             carAddApiModel.ApiUser = identity.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub).Value;
 
             Car car = _mapper.Map<Car>(carAddApiModel);
-            Car newCar = _repository.AddCar(car);
+            Car newCar = await _repository.AddCarAsync(car);
             return CreatedAtRoute(nameof(Get), new { carID = newCar?.CarID }, newCar);
         }
 
         // PUT: api/Car/5
         [HttpPut("{carID}")]
-        public IActionResult Edit([FromBody] CarEditApiModel carEditApiModel, int carID)
+        public async Task<IActionResult> Edit([FromBody] CarEditApiModel carEditApiModel, int carID)
         {
             if (carEditApiModel == null)
                 return BadRequest();
 
-            var currentCar = _repository.FindCar(carID);
+            Car currentCar =await  _repository.FindCarAsync(carID);
             if (currentCar == null)
                 return NotFound();
 
@@ -81,17 +82,17 @@ namespace CarStoreRest.Controllers
             if (!isCarAuthor)
                 return StatusCode(403);
 
-            _mapper.Map<CarEditApiModel, Car>(carEditApiModel, currentCar); //тут происходит маппинг
+            _mapper.Map<CarEditApiModel, Car>(carEditApiModel, currentCar); 
             
-            _repository.EditCar(currentCar, carID);
+            await _repository.EditCarAsync(currentCar, carID);
             return CreatedAtRoute(nameof(Get), new { carID = currentCar.CarID }, currentCar);
         }
 
         // DELETE: api/Car/5
         [HttpDelete("{carID}")]
-        public IActionResult Delete(int carID)
+        public async Task<IActionResult> Delete(int carID)
         {
-            var currentCar = _repository.FindCar(carID);
+            Car currentCar = await _repository.FindCarAsync(carID);
             if (currentCar == null)
                 return NotFound();
 
@@ -100,7 +101,7 @@ namespace CarStoreRest.Controllers
             if (!isCarAuthor)
                 return StatusCode(403);
 
-            _repository.DeleteCar(carID);
+            await _repository.DeleteCarAsync(carID);
 
             return new NoContentResult();
         }
@@ -108,11 +109,8 @@ namespace CarStoreRest.Controllers
         [NonAction]
         private async Task<bool> AuthorizeSucceeded(Car car)
         {
-
-            var authorized = await _authService.AuthorizeAsync(User, car, "Authors");
-
+            AuthorizationResult authorized = await _authService.AuthorizeAsync(User, car, "Authors");
             return authorized.Succeeded;
-
         }
     }
 }

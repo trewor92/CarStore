@@ -12,19 +12,22 @@ namespace CarStoreWeb.Infrastructure
     }
     public class AuthorAuthorizationHandler : AuthorizationHandler<AuthorAuthorizationRequirement>
     {
-        private  readonly string _userName;
-        public AuthorAuthorizationHandler(IConfiguration configuration)
+       
+        private AppSettingsServiceRepository _serviceRepository;
+        public AuthorAuthorizationHandler(AppSettingsServiceRepository serviceRepository)
         {
-            _userName = configuration["Data:WebApiSettings:UserName"];
+            _serviceRepository = serviceRepository;
+            
         }
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
                                                        AuthorAuthorizationRequirement requirement)
         {
+            string userName = _serviceRepository.GetUserName();
             Car car = context.Resource as Car;
             string user = context.User.Identity.Name;
 
             bool isInAdmin = context.User.IsInRole("Admin");
-            bool isApiUser = car.ApiUser== _userName;
+            bool isApiUser = car.ApiUser== userName;
             bool isAuthor = car.Author== user;
 
             if (car != null && user != null && isApiUser && (isAuthor || isInAdmin)) 

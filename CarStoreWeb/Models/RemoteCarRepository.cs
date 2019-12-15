@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace CarStoreWeb.Models
 {
@@ -23,9 +24,9 @@ namespace CarStoreWeb.Models
             _authenticator = authenticator;
         }
 
-        private IRestResponse SendRequest(Method method, int? carID=null, object obj=null)
-        {   
-            var request= new RestRequest(method);
+        private async Task<IRestResponse> SendRequestAsync(Method method, int? carID=null, object obj=null)
+        {
+            RestRequest request = new RestRequest(method);
             
             if (carID.HasValue)
             {
@@ -37,37 +38,34 @@ namespace CarStoreWeb.Models
 
             if (obj != null)
                 request.AddJsonBody(obj);
-            
-            IRestResponse response = _client.Execute(request);
 
-            var tokenExpired = 
+            var response = await  _client.ExecuteTaskAsync(request);
+
+            bool tokenExpired = 
                 Convert.ToBoolean(response.Headers.FirstOrDefault(x => x.Name == "Token-Expired")?.Value ?? false);
 
             if (!response.IsSuccessful && tokenExpired)
             {
                 _authenticator.RefreshTokens();    
-                response = SendRequest(method, carID, obj);
+                response = await SendRequestAsync(method, carID, obj);
             }
             return response;
         }
         
-        public IEnumerable<Car> Cars
+        public async Task<IEnumerable<Car>> GetCarsAsync()
         {
-            get
+            IRestResponse restResponse = await SendRequestAsync(Method.GET);
+            if (!restResponse.IsSuccessful)
             {
-                IRestResponse restResponse = SendRequest(Method.GET);
-                if (!restResponse.IsSuccessful)
-                {
-                    throw new Exception($"Some Error Occured {restResponse.Content}" +
-                        $"{restResponse.StatusDescription}");
-                }
-                return JsonConvert.DeserializeObject<IEnumerable<Car>>(restResponse.Content);
+                throw new Exception($"Some Error Occured {restResponse.Content}" +
+                    $"{restResponse.StatusDescription}");
             }
+            return JsonConvert.DeserializeObject<IEnumerable<Car>>(restResponse.Content);
         }
     
-        public Car AddCar(Car car)
+        public async Task<Car> AddCarAsync(Car car)
         {
-            IRestResponse restResponse = SendRequest(Method.POST, null, car); 
+            IRestResponse restResponse = await SendRequestAsync(Method.POST, null, car); 
             if (!restResponse.IsSuccessful)
             {
                 throw new Exception($"Some Error Occured {restResponse.Content}" +
@@ -76,9 +74,9 @@ namespace CarStoreWeb.Models
             return JsonConvert.DeserializeObject<Car>(restResponse.Content);
         }
 
-        public Car DeleteCar(int carID)
+        public async Task<Car> DeleteCarAsync(int carID)
         {
-            IRestResponse restResponse = SendRequest(Method.DELETE, carID);
+            IRestResponse restResponse = await SendRequestAsync(Method.DELETE, carID);
             if (!restResponse.IsSuccessful)
             {
                 throw new Exception($"Some Error Occured {restResponse.Content}" +
@@ -87,18 +85,18 @@ namespace CarStoreWeb.Models
             return JsonConvert.DeserializeObject<Car>(restResponse.Content);
         }
 
-        public void EditCar(Car car) //
+        public async Task EditCarAsync(Car car) 
         {
-            IRestResponse restResponse = SendRequest(Method.PUT, car.CarID, car);
+            IRestResponse restResponse = await SendRequestAsync(Method.PUT, car.CarID, car);
             if (!restResponse.IsSuccessful)
             {
                 throw new Exception($"Some Error Occured {restResponse.Content}" +
                     $"{restResponse.StatusDescription}");
             }
         }
-        public Car FindCar(int carID)
+        public async Task<Car> FindCarAsync(int carID)
         {
-            IRestResponse restResponse = SendRequest(Method.GET, carID);
+            IRestResponse restResponse = await SendRequestAsync(Method.GET, carID);
             if (!restResponse.IsSuccessful)
             {
                 throw new Exception($"Some Error Occured {restResponse.Content}" +

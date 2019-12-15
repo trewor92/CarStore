@@ -8,6 +8,7 @@ using AutoMapper;
 using CarStoreRest.Tests.ControllersTests;
 using Xunit;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CarStoreRest.Tests.ModelsTests
 {
@@ -19,16 +20,15 @@ namespace CarStoreRest.Tests.ModelsTests
 
         public EFCarRepositoryTests()
         {
-            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            DbContextOptions<ApplicationDbContext> options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(databaseName: "CarFakeDatabase")
             .Options;
             _context = new ApplicationDbContext(options);
-            var mapperConf = new MapperConfiguration(cfg =>
+            MapperConfiguration mapperConf = new MapperConfiguration(cfg =>
             {
                 cfg.AddProfile(new TestAutoMapperProfile());
             });
             _mapper = mapperConf.CreateMapper();
-
             _fakeCarRepository = new EFCarRepository(_context, _mapper);
             SetSeedData(_context);
         }
@@ -95,8 +95,7 @@ namespace CarStoreRest.Tests.ModelsTests
         [Fact]
         public void Can_Return_Cars()
         {
-            //SetSeedData(_context);
-            IEnumerable<Car> result = _fakeCarRepository.Cars;
+            IEnumerable<Car> result = _fakeCarRepository.GetCarsListAsync().Result;
            
             Assert.Equal(3, result.Count());
         }
@@ -104,9 +103,9 @@ namespace CarStoreRest.Tests.ModelsTests
         [Fact]
         public void Can_Return_Car()
         {
-            Car result1 = _fakeCarRepository.FindCar(1);
-            Car result2 = _fakeCarRepository.FindCar(2);
-            Car result3 = _fakeCarRepository.FindCar(3);
+            Car result1 = _fakeCarRepository.FindCarAsync(1).Result;
+            Car result2 = _fakeCarRepository.FindCarAsync(2).Result;
+            Car result3 = _fakeCarRepository.FindCarAsync(3).Result;
 
             Assert.Equal(1, result1.CarID);
             Assert.Equal(2, result2.CarID);
@@ -133,14 +132,14 @@ namespace CarStoreRest.Tests.ModelsTests
                 Price = 15000
             };
 
-            Car addedCar = _fakeCarRepository.AddCar(newCar);
+            Car addedCar =  _fakeCarRepository.AddCarAsync(newCar).Result;
 
             Assert.True(addedCar.CarID != 0);
             Assert.True(_context.Cars.Count(c => c.CarID == addedCar.CarID) == 1);
         }
 
         [Fact]
-        public void Can_Edit_Car()
+        public async Task Can_Edit_Car()
         {
             Car forEditCar = new Car
             {
@@ -159,7 +158,7 @@ namespace CarStoreRest.Tests.ModelsTests
                 Price = 12000
             };
 
-            _fakeCarRepository.EditCar(forEditCar, 1);
+            await _fakeCarRepository.EditCarAsync(forEditCar, 1);
             Car editedCar = _context.Cars.FirstOrDefault(c => c.CarID == 1);
 
             Assert.Equal(forEditCar.Brand, editedCar.Brand);
@@ -175,9 +174,10 @@ namespace CarStoreRest.Tests.ModelsTests
         }
 
         [Fact]
-        public void Can_Delete_Car()
+        public async Task Can_Delete_Car()
         {
-            _fakeCarRepository.DeleteCar(1);
+            await _fakeCarRepository.DeleteCarAsync(1);
+
             Assert.True(_context.Cars.Count(c => c.CarID == 1) == 0);
         }
 

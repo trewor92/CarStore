@@ -16,16 +16,17 @@ namespace CarStoreWeb.Components
             _repository = repo;
         }
         
-        public IViewComponentResult Invoke()
+        public async Task<IViewComponentResult> InvokeAsync()
         {
+            var cars = await _repository.GetCarsAsync();
             return View(new NavigationMenuViewComponentViewModel()
             {
-                Categories = _repository.Cars.Select(x => x.Brand)
+                Categories = cars.Select(x => x.Brand)
                                              .OrderBy(x => x)
                                              .GroupBy(x => x)
                                              .ToDictionary(x => x.Key, x => x.Count()),
                 CurrentCategory = RouteData?.Values["category"]?.ToString()
-            }); 
+            }); ; 
         }
     }
 }

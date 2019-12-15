@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using CarStoreRest.Models.ApiModels;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CarStoreRest.Models
 {
@@ -15,35 +17,38 @@ namespace CarStoreRest.Models
             _mapper = mapper;
         }
 
-        public IEnumerable<Car> Cars => _context.Cars;
-        public Car FindCar(int carID)
+        public async Task<List<Car>> GetCarsListAsync()
         {
-            return _context.Cars
-                .FirstOrDefault(c => c.CarID == carID);
+            return  await _context.Cars.ToListAsync<Car>();
         }
-        public Car AddCar(Car car)
+       
+        public async Task<Car> FindCarAsync(int carID)
+        {
+            return await _context.Cars
+                .FirstOrDefaultAsync(c => c.CarID == carID);
+        }
+        public async Task<Car> AddCarAsync(Car car)
         {
             _context.Cars.Add(car);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return car;
         }
-        public void EditCar(Car car, int carID)
+        public async Task EditCarAsync(Car car, int carID)
         {
-            Car currentCar = FindCar(carID);
+            Car currentCar =await  FindCarAsync(carID);
             if (currentCar!=null)
             {
                 _mapper.Map<Car, Car>(car, currentCar);
             }
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
-        public Car DeleteCar(int carID)
+        public async Task<Car> DeleteCarAsync(int carID)
         {
-            Car currentCar = _context.Cars
-                    .FirstOrDefault(c => c.CarID == carID);
+            Car currentCar = await FindCarAsync(carID);
             if (currentCar != null)
             {
                 _context.Cars.Remove(currentCar);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
             return currentCar;
         }

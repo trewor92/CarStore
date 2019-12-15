@@ -1,4 +1,5 @@
 ﻿using AutoMapper.Configuration;
+using CarStoreRest.Infrastructure;
 using CarStoreRest.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -22,26 +23,17 @@ namespace CarStoreRest.Tests.ModelsTests
         private string _loginProvider = "Admin";
         private string _userName = "Test";
 
-
-
         public TokenManagerOnUserManagerTests()
         {            
-
             Mock<IUserStore<IdentityUser>> userStoreMock = new Mock<IUserStore<IdentityUser>>();
             _mockUserManager = new Mock<UserManager<IdentityUser>>(userStoreMock.Object,
                 null, null, null, null, null, null, null, null);
-
-            var inMemorySettings = new Dictionary<string, string>() { { "Data:AppSettings:LoginProviderName", _loginProvider },
-                                                                        {"Data:AppSettings:JwtKey", "SOME_RANDOM_KEY_MUST_BE_HERE" },
-                                                                        {"Data:AppSettings:JwtExpireSec", "100" } };
-            IConfigurationRoot configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(inMemorySettings)
-                .Build();
-
-            _tokenManagerOnUserManager = new TokenManagerOnUserManager(_mockUserManager.Object, configuration);
+            Mock<AppSettingsServiceRepository> appSettingsServiceRepository = new Mock<AppSettingsServiceRepository>(null);
+            appSettingsServiceRepository.Setup(a => a.GetLoginProviderName()).Returns(_loginProvider);
+            appSettingsServiceRepository.Setup(a => a.GetJwtKey()).Returns("SOME_RANDOM_KEY_MUST_BE_HERE");
+            appSettingsServiceRepository.Setup(a => a.GetJwtExpireSec()).Returns(100);
+            _tokenManagerOnUserManager = new TokenManagerOnUserManager(_mockUserManager.Object, appSettingsServiceRepository.Object);
         }
-
-
 
         private void SetupUserManager(IdentityUser user)
         {
@@ -60,18 +52,15 @@ namespace CarStoreRest.Tests.ModelsTests
         public void Can_Generate_Token()
         {
             var user = new IdentityUser(_userName);
-
             SetupUserManager(user);
-            var result = _tokenManagerOnUserManager.GenerateToken(user).Result;
+            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+
+            Token result = _tokenManagerOnUserManager.GenerateToken(user).Result;
+            JwtSecurityToken token = handler.ReadToken(result.AccessToken) as JwtSecurityToken;
+            string sub = token.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.Sub).Value;
+            string nameId = token.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.NameId).Value;
 
             Assert.False(String.IsNullOrEmpty(result.RefreshToken));
-
-           
-            var handler = new JwtSecurityTokenHandler();
-            var token = handler.ReadToken(result.AccessToken) as JwtSecurityToken;
-            var sub = token.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.Sub).Value;
-            var nameId = token.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.NameId).Value;
-            
             Assert.True(sub== user.UserName);            
             Assert.True(nameId == user.Id);
         }
@@ -79,10 +68,10 @@ namespace CarStoreRest.Tests.ModelsTests
         [Fact]
         public void Can_Get_Identity_User_FromExpireTokenAsync()
         {
-            var user = new IdentityUser(_userName);
-
+            IdentityUser user = new IdentityUser(_userName);
             SetupUserManager(user);
-            var result = _tokenManagerOnUserManager.GenerateToken(user).Result;
+
+            Token result = _tokenManagerOnUserManager.GenerateToken(user).Result;
             IdentityUser resultUser = _tokenManagerOnUserManager.GetIdentityUserFromExpireTokenAsync(result.AccessToken).Result;
 
             Assert.Equal(user.UserName, resultUser.UserName);

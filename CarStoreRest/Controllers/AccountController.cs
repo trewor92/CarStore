@@ -19,18 +19,15 @@ namespace CarStoreRest.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly ITokenManager _tokenRepository;
         
-
         public AccountController(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
             ITokenManager tokenRepository
-           
             )
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _tokenRepository = tokenRepository;
-            
         }
 
         [HttpPost]
@@ -65,7 +62,6 @@ namespace CarStoreRest.Controllers
                 {
                     await _signInManager.SignOutAsync();
                     
-                    
                     if ((await _signInManager.PasswordSignInAsync(user,
                         loginModel.Password, false, false)).Succeeded)
                     {
@@ -85,7 +81,7 @@ namespace CarStoreRest.Controllers
 
                 if (user != null)
                 {
-                    var savedRefreshToken = await _tokenRepository.GetSavedTokenAsync(user); //retrieve the refresh token from a data store
+                    string savedRefreshToken = await _tokenRepository.GetSavedTokenAsync(user); //retrieve the refresh token from a data store
 
                     if (savedRefreshToken != token.RefreshToken)
                         throw new ApplicationException("INVALID_REFRESHTOKEN_ATTEMPT");
@@ -100,7 +96,7 @@ namespace CarStoreRest.Controllers
 
         [Authorize]
         [HttpGet]
-        public async Task<object> Protected()
+        public object Protected()
         {
             return "Protected area";
         }

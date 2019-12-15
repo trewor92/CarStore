@@ -24,11 +24,11 @@ namespace CarStoreWeb.Models
             _refreshUrl = refreshUrl;
         }
 
-        private HttpWebRequest CreateRequestWithObject(object obj, string url)
+        private WebRequest CreateRequestWithObject(object obj, string url)
         {
-            var jsonString = JsonConvert.SerializeObject(obj);
+            string jsonString = JsonConvert.SerializeObject(obj);
             byte[] objBytes = Encoding.UTF8.GetBytes(jsonString);
-            HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(new Uri(url, UriKind.RelativeOrAbsolute));
+            WebRequest request = (WebRequest)HttpWebRequest.Create(new Uri(url, UriKind.RelativeOrAbsolute));
             request.Method = "POST";
             request.ContentType = "application/json";
             request.ContentLength = objBytes.Length;
@@ -40,11 +40,11 @@ namespace CarStoreWeb.Models
             return request;
         }
 
-        private HttpWebRequest CreateRefreshRequest()
+        private WebRequest CreateRefreshRequest()
         {
             return CreateRequestWithObject(new { accessToken = AccessToken, refreshToken = RefreshToken },  _refreshUrl);
         }
-        private HttpWebRequest CreateAuthenticationRequest()
+        private WebRequest CreateAuthenticationRequest()
         {
             return CreateRequestWithObject(_apiLoginModel, _loginUrl);
         }
@@ -64,12 +64,12 @@ namespace CarStoreWeb.Models
         }
         private void GetTokens(bool IsRefresh=false)
         {
-            
-            var authRequest = IsRefresh? CreateRefreshRequest():CreateAuthenticationRequest();
+
+            WebRequest authRequest = IsRefresh? CreateRefreshRequest():CreateAuthenticationRequest();
             try
             {
-                using (var response = (HttpWebResponse)authRequest.GetResponse())
-                {
+                using (WebResponse response = (WebResponse)authRequest.GetResponse())
+                { 
                     var authResult = GetAuthResponse(response);
                     string accessToken = authResult?.accessToken?.Value.ToString();
                     string refreshToken = authResult?.refreshToken?.Value.ToString();
@@ -88,10 +88,10 @@ namespace CarStoreWeb.Models
             }
             catch (WebException ex)
             {
-                var response = (HttpWebResponse)ex.Response;
+                HttpWebResponse response = (HttpWebResponse)ex.Response;
                 if (response != null && response.StatusCode != HttpStatusCode.InternalServerError)
                 {
-                    using (var data = response.GetResponseStream())
+                    using (Stream data = response.GetResponseStream())
                     {
                         var errorResult = GetObjectFromResponse<dynamic>(data);
                         if (errorResult == null)
@@ -105,9 +105,9 @@ namespace CarStoreWeb.Models
             }
         }
 
-        private static dynamic GetAuthResponse(HttpWebResponse response)
+        private static dynamic GetAuthResponse(WebResponse response)
         {
-            using (var data = response.GetResponseStream())
+            using (Stream data = response.GetResponseStream())
             {
                 if (data == null)
                 {
@@ -119,10 +119,10 @@ namespace CarStoreWeb.Models
         
         private static T GetObjectFromResponse<T>(Stream data)
         {
-            using (var reader = new StreamReader(data))
+            using (StreamReader reader = new StreamReader(data))
             {
-                var serialiser = new JsonSerializer();
-                using (var jsonTextReader = new JsonTextReader(reader))
+                JsonSerializer serialiser = new JsonSerializer();
+                using (JsonTextReader jsonTextReader = new JsonTextReader(reader))
                 {
                     return serialiser.Deserialize<T>(jsonTextReader);
                 }

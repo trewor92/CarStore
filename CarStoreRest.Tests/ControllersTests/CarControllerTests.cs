@@ -38,24 +38,20 @@ namespace CarStoreRest.Tests.ControllersTests
         public CarControllerTests()
         {
             _mockRepository = new Mock<ICarRepository>();
-
-            var mapperConf = new MapperConfiguration(cfg =>
+            MapperConfiguration mapperConf = new MapperConfiguration(cfg =>
             {
                 cfg.AddProfile(new TestAutoMapperProfile());
             });
             _mapper = mapperConf.CreateMapper();
-
             Mock<IAuthorizationService> mockAuthService = new Mock<IAuthorizationService>();
             mockAuthService.Setup(x => x.AuthorizeAsync(It.IsAny<ClaimsPrincipal>(),
                 It.IsAny<object>(), It.IsAny<string>())).Returns(Task.FromResult(AuthorizationResult.Success()));
             _carController = new CarController(_mockRepository.Object, mockAuthService.Object, _mapper);
-
             List<Claim> fakeClaims = new List<Claim>()
             {
                 new Claim(JwtRegisteredClaimNames.Sub, _testUser)
             };
             ClaimsIdentity fakeIdentity = new ClaimsIdentity(fakeClaims);
-
             Mock<HttpContext> mockContext = new Mock<HttpContext>(MockBehavior.Strict);
             mockContext.SetupGet(hc => hc.User.Identity).Returns(fakeIdentity);
             _carController.ControllerContext = new ControllerContext()
@@ -101,18 +97,18 @@ namespace CarStoreRest.Tests.ControllersTests
                 },
                 Price = 10000
             };
-            _mockRepository.Setup(m => m.Cars).Returns(new Car[] { car1, car2 });
+            _mockRepository.Setup(m => m.GetCarsListAsync()).ReturnsAsync(new List<Car> { car1, car2 });
         }
 
         private void SetupSuccessFindCar1InMockRepository()
         {
             AddInitialCarCollectionInMockRepository();
-            _mockRepository.Setup(m => m.FindCar(1)).Returns(_mockRepository.Object.Cars.FirstOrDefault(c => c.CarID == 1));
+            _mockRepository.Setup(m => m.FindCarAsync(1)).ReturnsAsync(_mockRepository.Object.GetCarsListAsync().Result.FirstOrDefault(c => c.CarID == 1));
         }
 
         private void SetupUnsuccessFindCar100InMockRepository()
         {
-            _mockRepository.Setup(m => m.FindCar(100)).Returns((Car)null);
+            _mockRepository.Setup(m => m.FindCarAsync(100)).ReturnsAsync((Car)null);
         }
 
         [Fact]
@@ -120,9 +116,10 @@ namespace CarStoreRest.Tests.ControllersTests
         {
             AddInitialCarCollectionInMockRepository();
             SetupSuccessFindCar1InMockRepository();
-            var result = _carController.Delete(1);
-            _mockRepository.Verify(m => m.DeleteCar(1));
 
+            IActionResult result = _carController.Delete(1).Result;
+
+            _mockRepository.Verify(m => m.DeleteCarAsync(1));
             Assert.IsType<NoContentResult>(result);
 
         }
@@ -131,7 +128,8 @@ namespace CarStoreRest.Tests.ControllersTests
         public void Cannot_Delete_Nonexisting_Car()
         {
             SetupUnsuccessFindCar100InMockRepository();
-            var result = _carController.Delete(100);
+
+            IActionResult result = _carController.Delete(100).Result;
 
             Assert.IsType<NotFoundResult>(result);
         }
@@ -140,7 +138,6 @@ namespace CarStoreRest.Tests.ControllersTests
         public void Can_Edit_Car()
         {
             SetupSuccessFindCar1InMockRepository();
-
             CarEditApiModel car1EditApiModel = new CarEditApiModel
             {
                 Brand = "Ford",
@@ -155,14 +152,12 @@ namespace CarStoreRest.Tests.ControllersTests
                 },
                 Price = 7000
             };
-
             Car resultCar = null;
-            
-            _mockRepository.Setup(r => r.EditCar(It.IsAny<Car>(), 1)).Callback<Car, int>((c,i) => resultCar = c);
+            _mockRepository.Setup(r => r.EditCarAsync(It.IsAny<Car>(), 1)).Callback<Car, int>((c,i) => resultCar = c);
 
-            var result = _carController.Edit(car1EditApiModel, 1);
+            IActionResult result = _carController.Edit(car1EditApiModel, 1).Result;
+
             Assert.IsType<CreatedAtRouteResult>(result);
-
             Assert.Equal(car1EditApiModel.Brand, resultCar.Brand);
             Assert.Equal(car1EditApiModel.Model, resultCar.Model);
             Assert.Equal(car1EditApiModel.MobileNumber, resultCar.MobileNumber);
@@ -171,8 +166,7 @@ namespace CarStoreRest.Tests.ControllersTests
             Assert.Equal(car1EditApiModel.CarDescription.FuelType, resultCar.CarDescription.FuelType);
             Assert.Equal(car1EditApiModel.CarDescription.EngineСapacity, resultCar.CarDescription.EngineСapacity);
             Assert.Equal(car1EditApiModel.CarDescription.YearOfManufacture, resultCar.CarDescription.YearOfManufacture);
-
-            _mockRepository.Verify(m => m.EditCar(It.IsAny<Car>(), 1));
+            _mockRepository.Verify(m => m.EditCarAsync(It.IsAny<Car>(), 1));
 
         }
 
@@ -195,7 +189,7 @@ namespace CarStoreRest.Tests.ControllersTests
                 Price = 7000
             };
 
-            IActionResult result = _carController.Edit(car1EditApiModel, 100);
+            IActionResult result = _carController.Edit(car1EditApiModel, 100).Result;
 
             Assert.IsType<NotFoundResult>(result);
         }
@@ -219,13 +213,12 @@ namespace CarStoreRest.Tests.ControllersTests
                 },
                 Price = 7000
             };
-
             Car resultCar = null;
-            _mockRepository.Setup(r => r.AddCar(It.IsAny<Car>())).Callback<Car>(c => resultCar = c);
+            _mockRepository.Setup(r => r.AddCarAsync(It.IsAny<Car>())).Callback<Car>(c => resultCar = c);
 
-            IActionResult result = _carController.Add(car1AddApiModel);
+            IActionResult result = _carController.Add(car1AddApiModel).Result;
+
             Assert.IsType<CreatedAtRouteResult>(result);
-
             Assert.Equal(car1AddApiModel.Author, resultCar.Author);
             Assert.Equal(_testUser, resultCar.ApiUser);
             Assert.Equal(car1AddApiModel.Brand, resultCar.Brand);
@@ -242,8 +235,10 @@ namespace CarStoreRest.Tests.ControllersTests
         public void Can_Get_One_Car()
         {
             SetupSuccessFindCar1InMockRepository();
-            IActionResult result = _carController.Get(1);
-            _mockRepository.Verify(m => m.FindCar(1));
+
+            IActionResult result = _carController.Get(1).Result;
+
+            _mockRepository.Verify(m => m.FindCarAsync(1));
             OkObjectResult okObject = (OkObjectResult)result;
             Car carResult = (Car)okObject.Value;
             Assert.Equal(1, carResult.CarID);
@@ -253,7 +248,8 @@ namespace CarStoreRest.Tests.ControllersTests
         public void Cannot_Get_One_Nonexisting_Car()
         {
             SetupUnsuccessFindCar100InMockRepository();
-            var result = _carController.Get(100);
+
+            IActionResult result = _carController.Get(100).Result;
 
             Assert.IsType<NotFoundResult>(result);
         }
@@ -262,10 +258,11 @@ namespace CarStoreRest.Tests.ControllersTests
         public void Can_Get_Car()
         {
             AddInitialCarCollectionInMockRepository();
-            IActionResult result = _carController.Get();
 
+            IActionResult result = _carController.Get().Result;
             OkObjectResult okObject = (OkObjectResult)result;
             IEnumerable<Car> carsResult = (IEnumerable<Car>)okObject.Value;
+
             Assert.Equal(2, carsResult.Count());
         }
 

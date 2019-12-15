@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
+using CarStoreWeb.Infrastructure;
 using CarStoreWeb.Models;
 using CarStoreWeb.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -19,18 +21,18 @@ namespace CarStoreWeb.Controllers
         private readonly int _pageSize;
         private readonly IMapper _mapper;
 
-        public NoticeController(ICarRepository repo, IAuthorizationService auth, IConfiguration configuration, IMapper mapper)
+        public NoticeController(ICarRepository repo, IAuthorizationService auth, AppSettingsServiceRepository serviceRepository, IMapper mapper)
         {
             _repository = repo;
             _authService = auth;
-            _pageSize= Convert.ToInt32(configuration["Data:AppSettings:NoticeController:IntPageSize"]);
+            _pageSize= serviceRepository.GetPageSize();
             _mapper = mapper;
         }
         [AllowAnonymous]
-        public IActionResult List(string category, int pageNum, SortState? sortOrder)
+        public async Task<IActionResult> List(string category, int pageNum, SortState? sortOrder)
         {
-            var cars = _repository.Cars
-                    .Where(c => category == null || c.Brand == category);
+            IEnumerable<Car> allCars = await _repository.GetCarsAsync();
+            IEnumerable<Car> cars = allCars.Where(c => category == null || c.Brand == category);
 
             switch (sortOrder)
             {
@@ -64,9 +66,9 @@ namespace CarStoreWeb.Controllers
             }
             cars = cars.Skip((pageNum - 1) * _pageSize)
                        .Take(_pageSize);
-            var carsViewModel = cars.Select( c=>
+            IEnumerable<CarViewModel> carsViewModel = cars.Select( c=>
             {
-                var carViewModel = GetCarViewModel(c);
+                CarViewModel carViewModel = GetCarViewModel(c);
                 return carViewModel;
             });
             return View(new NoticeListViewModel()
@@ -77,8 +79,8 @@ namespace CarStoreWeb.Controllers
                 {
                     CurrentPage = pageNum,
                     ItemsPerPage = _pageSize,
-                    TotalItems = category == null ? _repository.Cars.Count() :
-                    _repository.Cars.Count(c => c.Brand == category)
+                    TotalItems = category == null ? allCars.Count() :
+                    allCars.Count(c => c.Brand == category)
                 },
                 SortViewModel = new SortViewModel(sortOrder),
                 IsAuthenticated = HttpContext.User.Identity.IsAuthenticated
@@ -92,21 +94,21 @@ namespace CarStoreWeb.Controllers
         }
 
         [HttpGet]
-        public IActionResult EditItem(int CarID)
+        public async Task<IActionResult> EditItem(int CarID)
         {
             bool isCarAuthor = AuthorizeSucceeded(CarID).Result;
 
             if (!isCarAuthor)
                 return StatusCode(403);
 
-            Car curentCar = _repository.FindCar(CarID);
+            Car curentCar = await _repository.FindCarAsync(CarID);
             CarViewModel carViewModel = _mapper.Map<CarViewModel>(curentCar);
 
             return View(carViewModel);
         }
 
         [HttpPost]
-        public IActionResult EditItem(CarViewModel carViewModel)
+        public async Task<IActionResult> EditItem(CarViewModel carViewModel)
         {
             if (!ModelState.IsValid)
                 return View(carViewModel);
@@ -116,7 +118,7 @@ namespace CarStoreWeb.Controllers
             if (car.CarID == 0)
             {
                 car.Author = HttpContext.User.Identity.Name;
-                car=_repository.AddCar(car);
+                car=await _repository.AddCarAsync(car);
                 TempData["message"] = $"{car.Brand} {car.Model} has been saved!";
                 return RedirectToAction("Completed", new { CarID = car.CarID });
             }
@@ -127,21 +129,22 @@ namespace CarStoreWeb.Controllers
                 if (!isCarAuthor)
                     return StatusCode(403);
 
-                _repository.EditCar(car);
+                await _repository.EditCarAsync(car);
                 TempData["message"] = $"{car.Brand} {car.Model} has been edited!";
                 return RedirectToAction(nameof(Completed),new {CarID= car.CarID });
             }
         }
 
         [HttpPost]
-        public IActionResult RemoveItem(int CarID)
+        public async Task<IActionResult> RemoveItem(int CarID)
         {
-            var car = _repository.FindCar(CarID);
+            Car car = await _repository.FindCarAsync(CarID);
             bool isCarAuthor = AuthorizeSucceeded(CarID).Result;
-
-            if (car != null && isCarAuthor)
+            if (car == null) 
+                return StatusCode(404);
+            if (isCarAuthor)
             {
-                _repository.DeleteCar(CarID);
+                await _repository.DeleteCarAsync(CarID);
                 TempData["message"] = $"{car.Brand} {car.Model} was deleted!";
                 return RedirectToAction(nameof(List)); //its safety
             }
@@ -150,12 +153,12 @@ namespace CarStoreWeb.Controllers
         }
 
         [HttpGet]
-        public IActionResult Completed(int CarID)
+        public async Task<IActionResult> Completed(int CarID)
         {
             bool isCarAuthor = AuthorizeSucceeded(CarID).Result;
             if (isCarAuthor)
             {
-                var car = _repository.FindCar(CarID);
+                var car = await _repository.FindCarAsync(CarID);
                 var carViewModel = GetCarViewModel(car);
                 return View(carViewModel);
             }
@@ -166,7 +169,7 @@ namespace CarStoreWeb.Controllers
         [NonAction]
         private async Task<bool> AuthorizeSucceeded(int CarID)
         {
-            var car = _repository.FindCar(CarID);
+            Car car = await _repository.FindCarAsync(CarID);
             return await AuthorizeSucceeded(car);
         }
 

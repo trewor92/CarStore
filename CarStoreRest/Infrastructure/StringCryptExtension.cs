@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CarStoreRest.Infrastructure
 {
-    public static class StringCryptExtension // in rest part for test!!!
+    public static class StringCryptExtension // here it is for test only!!!
     {
         
         private const string key = "key12345";

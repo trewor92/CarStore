@@ -8,7 +8,7 @@ namespace CarStoreRest.Models
     {
         public static void EnsurePopulated(IApplicationBuilder app)
         {
-            var _serviceScope = app.ApplicationServices.CreateScope();
+            IServiceScope _serviceScope = app.ApplicationServices.CreateScope();
             ApplicationDbContext _context = _serviceScope.ServiceProvider
                 .GetService<ApplicationDbContext>();
 

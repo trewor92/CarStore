@@ -25,41 +25,38 @@ namespace CarStoreRest.Tests.InfrastructureTests
             _user = new ClaimsPrincipal(
                          new ClaimsIdentity(
                             new Claim[] {
-                                new Claim(JwtRegisteredClaimNames.Sub, _author),
+                                new Claim(JwtRegisteredClaimNames.Sub, _author)
                                 })
                        );
-        }
-            
+        }  
 
         [Fact]
         public  void AuthorAuthorizationHandler_Should_Succeed()
         {
-            var requirements = new[] { _requirement.Object };
-           
-          
-            var testCar = new Car
+            AuthorAuthorizationRequirement[] requirements = new[] { _requirement.Object };
+            Car testCar = new Car
             {
                 ApiUser = _author
             };
+            AuthorizationHandlerContext context = new AuthorizationHandlerContext(requirements, _user, testCar);
 
-            var context = new AuthorizationHandlerContext(requirements, _user, testCar);
             this.HandleRequirementAsync(context, _requirement.Object);
+
             Assert.True(context.HasSucceeded);
         }
 
         [Fact]
         public void AuthorAuthorizationHandler_Should_Unsucceed()
         {
-            var requirements = new[] { _requirement.Object };
-
-
-            var testCar = new Car
+            AuthorAuthorizationRequirement[] requirements = new[] { _requirement.Object };
+            Car testCar = new Car
             {
                 ApiUser = "OtherAuthor"
             };
+            AuthorizationHandlerContext context = new AuthorizationHandlerContext(requirements, _user, testCar);
 
-            var context = new AuthorizationHandlerContext(requirements, _user, testCar);
             this.HandleRequirementAsync(context, _requirement.Object);
+
             Assert.False(context.HasSucceeded);
         }
     }

@@ -32,16 +32,19 @@ namespace CarStoreRest
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<AppSettingsServiceRepository>();
+            var servireProvider = services.BuildServiceProvider();
+            var appSettingsServiceRepository = servireProvider.GetService<AppSettingsServiceRepository>();
             services.AddDbContext<ApplicationDbContext>(options =>
-               options.UseSqlServer(_configuration["Data:ApplicationDbContext:ConnectionString"]));
+               options.UseSqlServer(appSettingsServiceRepository.GetApplicationConnString()));
 
             services.AddDbContext<AppIdentityDbContext>(options =>
-               options.UseSqlServer(_configuration["Data:AppIdentityDbContext:ConnectionString"]));
+               options.UseSqlServer(appSettingsServiceRepository.GetAppIdentityConnString()));
 
             services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<AppIdentityDbContext>()
-                .AddDefaultTokenProviders().AddTokenProvider(_configuration["Data:AppSettings:LoginProviderName"], typeof(DataProtectorTokenProvider<IdentityUser>));
-        
+                .AddDefaultTokenProviders().AddTokenProvider(appSettingsServiceRepository.GetLoginProviderName(), typeof(DataProtectorTokenProvider<IdentityUser>));
+
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
             services.AddAuthentication(options =>{
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -53,7 +56,7 @@ namespace CarStoreRest
                         cfg.TokenValidationParameters = new TokenValidationParameters{
                             ValidateIssuer =false,
                             ValidateAudience = false,
-                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Data:AppSettings:JwtKey"])),
+                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appSettingsServiceRepository.GetJwtKey())),
                             ClockSkew = TimeSpan.Zero}; // remove delay of token when expire                                                
                         cfg.Events = new JwtBearerEvents{
                             OnAuthenticationFailed = context => { 

@@ -12,9 +12,7 @@ namespace CarStoreWeb.Infrastructure
     {
         public AutoMapperProfile()
         {
-
             CreateMap<Car, CarViewModel>();
-
             CreateMap<CarViewModel, Car>();
         }
     }

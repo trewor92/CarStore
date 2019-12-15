@@ -7,10 +7,11 @@ namespace CarStoreWeb.Models
 {
     public interface ICarRepository
     {
-        IEnumerable<Car> Cars { get; }
-        Car FindCar(int carID);
-        Car AddCar(Car car);
-        void EditCar(Car car);
-        Car DeleteCar(int carID);
+        Task<IEnumerable<Car>> GetCarsAsync();
+        Task<Car> FindCarAsync(int carID);
+        Task<Car> AddCarAsync(Car car);
+        Task EditCarAsync(Car car);
+        Task<Car> DeleteCarAsync(int carID);
+
     }
 }

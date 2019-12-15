@@ -16,9 +16,6 @@ namespace CarStore
 {
     public class Startup
     {
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
-
         IConfigurationRoot _configuration;
 
         public Startup(IHostingEnvironment env)
@@ -32,24 +29,26 @@ namespace CarStore
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<AppSettingsServiceRepository>();
+            var servireProvider = services.BuildServiceProvider();
+            var appSettingsServiceRepository = servireProvider.GetService<AppSettingsServiceRepository>();
 
-            services.AddTransient<ICarRepository>(s => new RemoteCarRepository(
-                _configuration["Data:WebApiHostUrl"] + _configuration["Data:WebApiSettings:CarPath"],
+            services.AddScoped<ICarRepository>(s => new RemoteCarRepository(
+                s.GetRequiredService<AppSettingsServiceRepository>().GetCarUrl(),
                 s.GetRequiredService<ITokenAuthenticator>()));              
 
             services.AddMvc();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddSingleton<ITokenAuthenticator, CarStoreRestAuthenticator>(c=> { return new CarStoreRestAuthenticator(
-                _configuration["Data:WebApiSettings:UserName"],
-                _configuration["Data:WebApiSettings:CryptPassword"].Decrypt(),
-                _configuration["Data:WebApiHostUrl"] + _configuration["Data:WebApiSettings:LoginPath"],
-                _configuration["Data:WebApiHostUrl"] + _configuration["Data:WebApiSettings:RefreshPath"]);
+            services.AddSingleton<ITokenAuthenticator, CarStoreRestAuthenticator>(s=> { return new CarStoreRestAuthenticator(
+                s.GetRequiredService<AppSettingsServiceRepository>().GetUserName(),
+                s.GetRequiredService<AppSettingsServiceRepository>().GetHashPassword().Decrypt(),
+                s.GetRequiredService<AppSettingsServiceRepository>().GetLoginUrl(),
+                s.GetRequiredService<AppSettingsServiceRepository>().GetRefreshUrl());
             });
-
             services.AddMemoryCache();
             services.AddSession();
             services.AddDbContext<AppIdentityDbContext>(options =>
-                options.UseSqlServer(_configuration["Data:AppIdentityDbContext:ConnectionString"]));
+                options.UseSqlServer(appSettingsServiceRepository.GetAppIdentityConnString()));
             services.AddIdentity<IdentityUser, IdentityRole>()
                .AddEntityFrameworkStores<AppIdentityDbContext>();
             services.AddTransient<IAuthorizationHandler,AuthorAuthorizationHandler>();
@@ -65,7 +64,6 @@ namespace CarStore
             services.AddAutoMapper();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
@@ -74,9 +72,8 @@ namespace CarStore
             }
             app.UseStatusCodePages();
             app.UseStaticFiles();
-            //app.UseMvcWithDefaultRoute();
             app.UseSession();
-            app.UseIdentity(); //obsolete
+            app.UseIdentity(); 
 
             app.UseMvc(routes =>
             {

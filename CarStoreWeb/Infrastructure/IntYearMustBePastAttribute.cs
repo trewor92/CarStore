@@ -19,7 +19,6 @@ namespace CarStoreWeb.Infrastructure
             else
                 return new List<ModelValidationResult> {
                     new ModelValidationResult("", ErrorMessage) };
-
         }
     }
 }

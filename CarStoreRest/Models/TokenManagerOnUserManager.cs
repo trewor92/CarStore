@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using CarStoreRest.Infrastructure;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -15,19 +16,19 @@ namespace CarStoreRest.Models
     {
         private UserManager<IdentityUser> _userManager;
         private readonly string _loginProvider;
-        private IConfiguration _configuration;
+        private AppSettingsServiceRepository _appSettingsServiceRepository;
 
-        public TokenManagerOnUserManager(UserManager<IdentityUser> userManager, IConfiguration configuration)
+        public TokenManagerOnUserManager(UserManager<IdentityUser> userManager, AppSettingsServiceRepository appSettingsServiceRepository)
         {
             _userManager = userManager;
-            _configuration = configuration;
-            _loginProvider = _configuration["Data:AppSettings:LoginProviderName"];
+            _appSettingsServiceRepository = appSettingsServiceRepository;
+            _loginProvider = _appSettingsServiceRepository.GetLoginProviderName();
         }
 
         public  async Task<Token> GenerateToken(IdentityUser user)
         {
             await _userManager.RemoveAuthenticationTokenAsync(user, _loginProvider, nameof(Token.RefreshToken));
-            var newRefreshToken = await _userManager.GenerateUserTokenAsync(user, _loginProvider, nameof(Token.RefreshToken));
+            string newRefreshToken = await _userManager.GenerateUserTokenAsync(user, _loginProvider, nameof(Token.RefreshToken));
             await _userManager.SetAuthenticationTokenAsync(user, _loginProvider, nameof(Token.RefreshToken), newRefreshToken);
 
             string newAccessToken = GenerateAccessJwtToken(user);
@@ -41,19 +42,19 @@ namespace CarStoreRest.Models
 
         private string GenerateAccessJwtToken(IdentityUser user)
         {
-            var claims = new List<Claim>
+            List<Claim> claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.NameId, user.Id)
             };
 
- 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Data:AppSettings:JwtKey"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expires = DateTime.Now.AddSeconds(Convert.ToDouble(_configuration["Data:AppSettings:JwtExpireSec"]));
 
-            var token = new JwtSecurityToken(
+            SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_appSettingsServiceRepository.GetJwtKey()));
+            SigningCredentials creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            DateTime expires = DateTime.Now.AddSeconds(_appSettingsServiceRepository.GetJwtExpireSec());
+
+            JwtSecurityToken token = new JwtSecurityToken(
                 null,
                 null,
                 claims,
@@ -72,14 +73,14 @@ namespace CarStoreRest.Models
                 ValidateAudience = false,
                 ValidateIssuer = false,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Data:AppSettings:JwtKey"])),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_appSettingsServiceRepository.GetJwtKey())),
                 ValidateLifetime = false //here we are saying that we don't care about the token's expiration date
             };
 
-            var tokenHandler = new JwtSecurityTokenHandler();
+            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
             SecurityToken securityToken;
-            var principal = tokenHandler.ValidateToken(accessToken, tokenValidationParameters, out securityToken);
-            var jwtSecurityToken = securityToken as JwtSecurityToken;
+            ClaimsPrincipal principal = tokenHandler.ValidateToken(accessToken, tokenValidationParameters, out securityToken);
+            JwtSecurityToken jwtSecurityToken = securityToken as JwtSecurityToken;
             if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
                 throw new SecurityTokenException("Invalid token");
 
@@ -89,7 +90,7 @@ namespace CarStoreRest.Models
         public async Task<IdentityUser> GetIdentityUserFromExpireTokenAsync(string accessToken)
         {
             ClaimsPrincipal principal = GetPrincipalFromExpiredToken(accessToken);
-            var userName = principal.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub).Value;   // извлекаем имя из claim sub
+            string userName = principal.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub).Value;   // извлекаем имя из claim sub
             return await _userManager.FindByNameAsync(userName);
         }
 

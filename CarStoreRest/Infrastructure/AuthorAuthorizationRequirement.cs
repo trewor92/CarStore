@@ -17,9 +17,8 @@ namespace CarStoreRest.Infrastructure
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
                                                        AuthorAuthorizationRequirement requirement)
         {
-
-            var identity = context.User.Identity as ClaimsIdentity;
-            var user = identity.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub).Value;
+            ClaimsIdentity identity = context.User.Identity as ClaimsIdentity;
+            string user = identity.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub).Value;
 
             Car car = context.Resource as Car;
 
@@ -31,7 +30,6 @@ namespace CarStoreRest.Infrastructure
             }
 
             return Task.CompletedTask;
-            
         }
     }
 }

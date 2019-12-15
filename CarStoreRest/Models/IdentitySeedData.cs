@@ -14,7 +14,7 @@ namespace CarStoreRest.Models
 
         public static async void EnsurePopulated(IApplicationBuilder app)
         {
-            var serviceScope = app.ApplicationServices.CreateScope();
+            IServiceScope serviceScope = app.ApplicationServices.CreateScope();
 
             UserManager<IdentityUser> userManager = serviceScope.ServiceProvider
                 .GetService<UserManager<IdentityUser>>();
